@@ -9,7 +9,7 @@ export function Footer() {
     { path: "/cultivos", label: "Cultivos" },
     { path: "/distribuidores", label: "Distribuidores" },
   ];
-  
+
   const companyLinks = [
     { path: "/nosotros", label: "Nosotros" },
     { path: "/servicios", label: "Servicios" },
@@ -22,13 +22,13 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Reducimos gap de 12 a 8 */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          
+
           {/* Company Info */}
           <div className="col-span-1 space-y-3">
-            <img 
-              src={logo} 
-              alt="Logo Agrofert" 
-              className="h-16 w-auto drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)]" 
+            <img
+              src={logo}
+              alt="Logo Agrofert"
+              className="h-16 w-auto drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)]"
             />
             <p className="text-sm leading-relaxed italic">
               "¡Nutriendo el campo colombiano!"
@@ -41,8 +41,8 @@ export function Footer() {
             <ul className="space-y-2"> {/* Reducimos espacio entre links */}
               {quickLinks.map((link) => (
                 <li key={link.path}>
-                  <Link 
-                    to={link.path} 
+                  <Link
+                    to={link.path}
                     className="group flex items-center hover:text-green-500 transition-all duration-300 hover:translate-x-2"
                   >
                     <span className="w-0 h-0.5 bg-green-500 mr-0 group-hover:w-3 group-hover:mr-2 transition-all duration-300"></span>
@@ -59,8 +59,8 @@ export function Footer() {
             <ul className="space-y-2">
               {companyLinks.map((link) => (
                 <li key={link.path}>
-                  <Link 
-                    to={link.path} 
+                  <Link
+                    to={link.path}
                     className="group flex items-center hover:text-green-500 transition-all duration-300 hover:translate-x-2"
                   >
                     <span className="w-0 h-0.5 bg-green-500 mr-0 group-hover:w-3 group-hover:mr-2 transition-all duration-300"></span>
@@ -94,17 +94,18 @@ export function Footer() {
                 <span>Colombia</span>
               </li>
             </ul>
-            
+
             {/* Social Icons (Mantenemos efecto salto) */}
             <div className="flex gap-3 pt-1">
               {[
-                { Icon: Facebook, href: "#" },
-                { Icon: Instagram, href: "#" },
+                { Icon: Facebook, href: "https://www.facebook.com/AGROFERTCOL" },
+                { Icon: Instagram, href: "https://www.instagram.com/agrofertcol/" },
                 { Icon: Linkedin, href: "#" }
               ].map(({ Icon, href }, index) => (
-                <a 
+                <a
                   key={index}
-                  href={href} 
+                  href={href}
+                  target="_blank"
                   className="bg-gray-800 p-2.5 rounded-full hover:bg-green-600 hover:text-white hover:-translate-y-1 transition-all duration-300"
                 >
                   <Icon className="w-4 h-4" />
