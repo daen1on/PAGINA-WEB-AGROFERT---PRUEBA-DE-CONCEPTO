@@ -75,7 +75,7 @@ export default function Services() {
                     </li>
                   ))}
                 </ul>
-                <button className="mt-6 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium transition-colors">
+                <button className="mt-6 w-full bg-green-600 cursor-pointer hover:bg-green-700 text-white py-2 rounded-lg font-medium transition-colors">
                   Más Información
                 </button>
               </div>
@@ -142,10 +142,10 @@ export default function Services() {
             Contáctanos hoy y descubre cómo nuestros servicios pueden transformar tu cultivo
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
+            <button className="bg-white cursor-pointer text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
               Solicitar Visita Técnica
             </button>
-            <button className="bg-green-700 hover:bg-green-800 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+            <button className="bg-green-700 cursor-pointer hover:bg-green-800 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
               Ver Productos
             </button>
           </div>
