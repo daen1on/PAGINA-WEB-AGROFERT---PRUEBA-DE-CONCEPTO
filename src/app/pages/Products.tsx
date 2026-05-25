@@ -165,6 +165,99 @@ const getDetailedSolutionText = (issue: "cors" | "credentials" | "not_found" | "
   }
 };
 
+const parseWooCommerceDescription = (htmlDescription: string) => {
+  if (!htmlDescription) return null;
+
+  // PASO 1: Decodificar entidades HTML (incluyendo caracteres acentuados)
+  const plainText = htmlDescription
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&Oacute;/gi, 'Ó')
+    .replace(/&oacute;/gi, 'ó')
+    .replace(/&#211;/g, 'Ó')
+    .replace(/&#243;/g, 'ó')
+    .replace(/&Iacute;/gi, 'Í')
+    .replace(/&iacute;/gi, 'í')
+    .replace(/&eacute;/gi, 'é')
+    .replace(/&Eacute;/gi, 'É')
+    .replace(/&aacute;/gi, 'á')
+    .replace(/&uacute;/gi, 'ú')
+    // PASO 2: Convertir HTML a texto plano (reemplazar tags con espacios)
+    .replace(/<\/(p|div|li|ul|ol|h[1-6]|strong|b|em|span|sub|sup)[^>]*>/gi, ' ')
+    .replace(/<(br|hr)[^>]*\/?>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    // PASO 3: Normalizar espacios
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Helpers
+  const clean = (str: string) => str.replace(/\s+/g, ' ').trim();
+
+  const formatComposition = (str: string) => {
+    let c = clean(str).replace(/^[,:\s]+/, '');
+    // Si no tiene comas, insertar separadores entre nombres de nutrientes conocidos
+    if (!c.includes(',')) {
+      c = c
+        .replace(/\s+(F[oó]sforo|Boro|Zinc|Solubilidad|Densidad|Nitr[oó]geno|Magnesio|Calcio|Azufre|Cobre|Manganeso|Potasio|pH|Carbono)/gi, ', $1')
+        .replace(/^,\s*/, '');
+    }
+    return c;
+  };
+
+  const splitFirst = (str: string, regex: RegExp) => {
+    const match = str.match(regex);
+    if (!match) return [str];
+    return [str.substring(0, match.index), str.substring(match.index! + match[0].length)];
+  };
+
+  // PASO 4: Buscar sección APLICACIÓN con regex permisivo (con o sin tilde)
+  // Cubre: APLICACIÓN, APLICACION, Aplicación, aplicacion, etc.
+  const APP_REGEX = /APLICACI[OÓ]N/i;
+  const COMP_REGEX = /COMPOSICI[OÓ]N(?:\s+GARANTIZADA)?/i;
+
+  const partsApp = splitFirst(plainText, APP_REGEX);
+
+  if (partsApp.length > 1) {
+    const description = clean(partsApp[0]);
+    const afterApp = partsApp[1]; // texto después de APLICACIÓN
+
+    const partsComp = splitFirst(afterApp, COMP_REGEX);
+
+    if (partsComp.length > 1) {
+      // Caso completo: APLICACIÓN + COMPOSICIÓN
+      const application = clean(partsComp[0]).replace(/^[:\s]+/, '');
+      const composition = formatComposition(partsComp[1]);
+      console.log('[Parser] Parsed OK ✓ desc:', description.substring(0, 60), '| app:', application.substring(0, 60), '| comp:', composition.substring(0, 60));
+      return { description, application, composition };
+    }
+
+    // Caso parcial: solo APLICACIÓN sin COMPOSICIÓN
+    const application = clean(afterApp).replace(/^[:\s]+/, '');
+    if (application) {
+      return { description, application, composition: 'Ver especificaciones técnicas' };
+    }
+  }
+
+  // Caso alternativo: solo COMPOSICIÓN
+  const partsComp = splitFirst(plainText, COMP_REGEX);
+  if (partsComp.length > 1) {
+    const composition = formatComposition(partsComp[1]);
+    if (composition) {
+      return {
+        description: clean(partsComp[0]),
+        application: 'Consulte con nuestros asesores',
+        composition,
+      };
+    }
+  }
+
+  console.warn('[Parser] No se encontraron secciones APLICACIÓN ni COMPOSICIÓN. plainText preview:', plainText.substring(0, 200));
+  return null;
+};
+
+
 interface ApiDebugInfo {
   status: number | null;
   statusText: string;
@@ -264,44 +357,62 @@ export default function Products() {
             else category = firstCat; // Usar el slug tal cual si no coincide
           }
 
-          // Extraer composición y aplicación desde atributos de WooCommerce si existen
-          let composition = "Ver especificaciones técnicas";
-          let application = "Consulte con nuestros asesores";
-
-          if (item.attributes && item.attributes.length > 0) {
-            const compAttr = item.attributes.find(attr => 
-              attr.name.toLowerCase().includes("composic") || attr.name.toLowerCase().includes("composición")
-            );
-            const appAttr = item.attributes.find(attr => 
-              attr.name.toLowerCase().includes("aplicac") || attr.name.toLowerCase().includes("aplicación")
-            );
-
-            if (compAttr && compAttr.options && compAttr.options.length > 0) {
-              composition = compAttr.options.join(", ");
-            }
-            if (appAttr && appAttr.options && appAttr.options.length > 0) {
-              application = appAttr.options.join(", ");
-            }
-          }
-
-          // Limpiar etiquetas HTML de la descripción
-          const rawDesc = item.short_description || item.description || "";
-          const cleanDesc = rawDesc
-            .replace(/<[^>]*>/g, '') // Quita tags HTML
+          // Limpiar descripción corta (esta siempre va simple a la tarjeta)
+          const rawShort = item.short_description || "";
+          const cleanShort = rawShort
+            .replace(/<[^>]*>/g, '')
             .replace(/&nbsp;/g, ' ')
             .replace(/&amp;/g, '&')
             .trim();
 
-          const shortDesc = cleanDesc.length > 120 
-            ? cleanDesc.substring(0, 117) + "..." 
-            : cleanDesc || "Sin descripción disponible";
+          // Inicializar variables de ficha técnica
+          let finalDescription = cleanShort;
+          let composition = "Ver especificaciones técnicas";
+          let application = "Consulte con nuestros asesores";
+
+          // Intentar parsear a partir del campo description de WooCommerce
+          const parsedData = parseWooCommerceDescription(item.description || "");
+
+          if (parsedData) {
+            finalDescription = parsedData.description;
+            application = parsedData.application;
+            composition = parsedData.composition;
+          } else {
+            // Fallback tradicional de atributos de WooCommerce si el parser no coincide
+            if (item.attributes && item.attributes.length > 0) {
+              const compAttr = item.attributes.find(attr => 
+                attr.name.toLowerCase().includes("composic") || attr.name.toLowerCase().includes("composición")
+              );
+              const appAttr = item.attributes.find(attr => 
+                attr.name.toLowerCase().includes("aplicac") || attr.name.toLowerCase().includes("aplicación")
+              );
+
+              if (compAttr && compAttr.options && compAttr.options.length > 0) {
+                composition = compAttr.options.join(", ");
+              }
+              if (appAttr && appAttr.options && appAttr.options.length > 0) {
+                application = appAttr.options.join(", ");
+              }
+            }
+            // Usar la descripción limpia completa de WooCommerce como descripción larga
+            const rawFull = item.description || item.short_description || "";
+            finalDescription = rawFull
+              .replace(/<[^>]*>/g, '')
+              .replace(/&nbsp;/g, ' ')
+              .replace(/&amp;/g, '&')
+              .trim();
+          }
+
+          const cardDesc = cleanShort || (finalDescription.length > 120 
+            ? finalDescription.substring(0, 117) + "..." 
+            : finalDescription) || "Sin descripción disponible";
 
           return {
             id: item.id,
             name: item.name,
             category: category,
-            description: shortDesc,
-            fullDescription: cleanDesc || "Sin descripción detallada disponible.",
+            description: cardDesc,
+            fullDescription: finalDescription || "Sin descripción detallada disponible.",
             composition: composition,
             application: application,
             image: item.images && item.images.length > 0 ? item.images[0].src : undefined,
