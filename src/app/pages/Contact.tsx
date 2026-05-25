@@ -45,7 +45,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Teléfono</h3>
-                  <p className="text-gray-600">+57 314 *** ****</p>
+                  <p className="text-gray-600">+57 320 272 4352</p>
                   <p className="text-gray-600">+57 316 *** ****</p>
                 </div>
               </div>
@@ -76,7 +76,7 @@ export default function Contact() {
                     <br />
                     Colombia
                     <br />
-                    
+
                   </p>
                 </div>
               </div>
@@ -170,7 +170,7 @@ export default function Contact() {
                     >
                       <option value="">Selecciona un asunto</option>
                       <option value="consulta-productos">Consulta sobre Productos</option>
-                      <option value="asesoramiento">Asesoramiento Técnico</option>                      
+                      <option value="asesoramiento">Asesoramiento Técnico</option>
                       <option value="distribuidor">Convertirse en Distribuidor</option>
                       <option value="otro">Otro</option>
                     </select>
@@ -195,7 +195,7 @@ export default function Contact() {
 
                 <button
                   type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                  className="w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Send className="w-5 h-5" />
                   Enviar Mensaje
@@ -204,8 +204,8 @@ export default function Contact() {
             </div>
           </div>
         </div>
-       
-        
+
+
       </div>
     </div>
   );
