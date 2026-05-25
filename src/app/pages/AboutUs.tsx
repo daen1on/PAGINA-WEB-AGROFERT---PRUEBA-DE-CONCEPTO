@@ -132,7 +132,7 @@ export default function AboutUs() {
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Nuestro equipo de expertos está listo para ayudarte a alcanzar tus objetivos de producción
           </p>
-          <button className="bg-white text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
+          <button className="bg-white cursor-pointer text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
             Contáctanos Hoy
           </button>
         </section>
