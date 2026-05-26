@@ -1,18 +1,18 @@
 import { Link, useLocation } from "react-router";
-import { Menu, X, ChevronDown } from "lucide-react"; 
+import { Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import logo from '../../assets/logo-agrofert.svg';
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [openSubmenu, setOpenSubmenu] = useState(false); // Estado para submenu en móvil
+  const [openSubmenu, setOpenSubmenu] = useState(false);
   const location = useLocation();
 
   const navLinks = [
     { path: "/", label: "Inicio" },
     { path: "/productos", label: "Productos" },
-    { 
-      path: "/cultivos", 
+    {
+      path: "/cultivos",
       label: "Cultivos",
       subItems: [
         { path: "/cultivos/fresa", label: "Fresa" },
@@ -20,7 +20,7 @@ export function Navbar() {
         { path: "/cultivos/papa", label: "Papa" },
       ]
     },
-    { path: "/distribuidores", label: "Distribuidores"},
+    { path: "/distribuidores", label: "Distribuidores" },
     { path: "/nosotros", label: "Nosotros" },
     { path: "/servicios", label: "Servicios" },
     { path: "/contacto", label: "Contacto" },
@@ -33,18 +33,46 @@ export function Navbar() {
     return location.pathname.startsWith(path);
   };
 
+  // 🥷 TRUCO NINJA: Precarga silenciosa de datos en segundo plano
+  const prefetchRouteData = (path: string) => {
+    // Si ya estamos en la ruta, no tiene sentido precargarla
+    if (location.pathname === path) return;
+
+    const customerKey = import.meta.env.VITE_WOOCOMMERCE_CUSTOMER_KEY || '';
+    const customerSecret = import.meta.env.VITE_WOOCOMMERCE_CUSTOMER_SECRET || '';
+    const isDev = import.meta.env.DEV || import.meta.env.VITE_ENV === 'development';
+    const baseUrl = isDev ? '' : 'https://www.agrofert.com.co';
+
+    try {
+      if (path === "/productos") {
+        // Precargamos el catálogo completo. Mismos parámetros que useProducts.ts
+        fetch(`${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&per_page=100&_fields=id,name,description,short_description,images,categories,attributes`, {
+          cache: "force-cache" // Le decimos al navegador que guarde esta respuesta en memoria
+        });
+      } else if (path === "/") {
+        // Precargamos los productos destacados del Home. Mismos parámetros que useFeaturedProducts.ts
+        fetch(`${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&include=23376,23351,23394,23377,23332,23406,23419&_fields=id,name,description,short_description,images,attributes`, {
+          cache: "force-cache"
+        });
+      }
+    } catch (error) {
+      // Es una carga silenciosa. Si falla por red, no hacemos nada para no alertar al usuario.
+      // La vista real manejará el error de todos modos cuando el usuario haga clic.
+    }
+  };
+
   return (
     <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          
+
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img 
-              src={logo} 
-              alt="Logo Agrofert" 
-              className="h-16 w-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)] object-contain" 
-            />   
+            <img
+              src={logo}
+              alt="Logo Agrofert"
+              className="h-16 w-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)] object-contain"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -53,15 +81,16 @@ export function Navbar() {
               <div key={link.path} className="relative group">
                 <Link
                   to={link.path}
-                  className={`flex items-center gap-1 py-2 transition-colors duration-300 ${
-                    isActive(link.path)
+                  onMouseEnter={() => prefetchRouteData(link.path)} // Precarga con el mouse
+                  onFocus={() => prefetchRouteData(link.path)}      // Precarga si navegan con teclado (Tab)
+                  className={`flex items-center gap-1 py-2 transition-colors duration-300 ${isActive(link.path)
                       ? "text-green-600 font-bold"
                       : "text-gray-700 hover:text-green-600"
-                  }`}
+                    }`}
                 >
                   {link.label}
                   {link.subItems && <ChevronDown size={16} className="transition-transform group-hover:rotate-180" />}
-                  
+
                   {isActive(link.path) && !link.subItems && (
                     <span className="absolute bottom-0 left-0 w-full h-0.5 bg-green-600 rounded-full" />
                   )}
@@ -104,17 +133,17 @@ export function Navbar() {
                 <div className="flex items-center justify-between">
                   <Link
                     to={link.path}
-                    className={`flex-grow block py-3 px-2 transition-colors ${
-                      isActive(link.path)
+                    onTouchStart={() => prefetchRouteData(link.path)} // Precarga cuando el dedo toca la pantalla antes de levantar
+                    className={`flex-grow block py-3 px-2 transition-colors ${isActive(link.path)
                         ? "bg-green-50 text-green-600 font-semibold border-l-4 border-green-600"
                         : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                      }`}
                     onClick={() => !link.subItems && setIsMenuOpen(false)}
                   >
                     {link.label}
                   </Link>
                   {link.subItems && (
-                    <button 
+                    <button
                       onClick={() => setOpenSubmenu(!openSubmenu)}
                       className="p-3 text-gray-500 bg-gray-50 hover:bg-gray-100"
                     >
@@ -122,7 +151,7 @@ export function Navbar() {
                     </button>
                   )}
                 </div>
-                
+
                 {/* Mobile Dropdown */}
                 {link.subItems && openSubmenu && (
                   <div className="bg-gray-50 pl-6 border-l-4 border-transparent">
