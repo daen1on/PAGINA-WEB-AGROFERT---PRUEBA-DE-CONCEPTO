@@ -33,9 +33,7 @@ export function Navbar() {
     return location.pathname.startsWith(path);
   };
 
-  // 🥷 TRUCO NINJA: Precarga silenciosa de datos en segundo plano
   const prefetchRouteData = (path: string) => {
-    // Si ya estamos en la ruta, no tiene sentido precargarla
     if (location.pathname === path) return;
 
     const customerKey = import.meta.env.VITE_WOOCOMMERCE_CUSTOMER_KEY || '';
@@ -84,8 +82,8 @@ export function Navbar() {
                   onMouseEnter={() => prefetchRouteData(link.path)} // Precarga con el mouse
                   onFocus={() => prefetchRouteData(link.path)}      // Precarga si navegan con teclado (Tab)
                   className={`flex items-center gap-1 py-2 transition-colors duration-300 ${isActive(link.path)
-                      ? "text-green-600 font-bold"
-                      : "text-gray-700 hover:text-green-600"
+                    ? "text-green-600 font-bold"
+                    : "text-gray-700 hover:text-green-600"
                     }`}
                 >
                   {link.label}
@@ -135,8 +133,8 @@ export function Navbar() {
                     to={link.path}
                     onTouchStart={() => prefetchRouteData(link.path)} // Precarga cuando el dedo toca la pantalla antes de levantar
                     className={`flex-grow block py-3 px-2 transition-colors ${isActive(link.path)
-                        ? "bg-green-50 text-green-600 font-semibold border-l-4 border-green-600"
-                        : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-green-50 text-green-600 font-semibold border-l-4 border-green-600"
+                      : "text-gray-700 hover:bg-gray-50"
                       }`}
                     onClick={() => !link.subItems && setIsMenuOpen(false)}
                   >
