@@ -50,15 +50,19 @@ export const useProducts = () => {
                 if (!Array.isArray(data)) throw new Error("El formato de datos devuelto no es un arreglo válido.");
 
                 const mappedData: MappedProduct[] = data.map((item) => {
+                    console.log(`Procesando producto ID ${item.id}: ${item.name}`);
+                    console.log(item.categories[0]);
                     let category = "all";
                     if (item.categories && item.categories.length > 0) {
-                        const firstCat = item.categories[0].slug.toLowerCase();
-                        if (firstCat.includes("nitrog")) category = "nitrogenados";
-                        else if (firstCat.includes("fosf")) category = "fosforados";
-                        else if (firstCat.includes("potas")) category = "potasicos";
-                        else if (firstCat.includes("organ")) category = "organicos";
-                        else if (firstCat.includes("micro") || firstCat.includes("nutri")) category = "micronutrientes";
-                        else category = firstCat;
+                       for (const cat of item.categories) {
+                            const firstCat = cat.slug.toLowerCase();
+                            if (firstCat.includes("itrogen")) category = "nitrogenados";
+                            else if (firstCat.includes("osfor")) category = "fosforados";
+                            else if (firstCat.includes("otasi")) category = "potasicos";
+                            else if (firstCat.includes("rgani")) category = "organicos";
+                            else if (firstCat.includes("icro") || firstCat.includes("nutri")) category = "micronutrientes";
+                            else category = firstCat;
+                        }
                     }
 
                     const rawShort = item.short_description || "";
