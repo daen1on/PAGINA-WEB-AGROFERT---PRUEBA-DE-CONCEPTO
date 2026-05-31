@@ -1,10 +1,97 @@
 // app/pages/Products.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
-import { Search, AlertCircle, WifiOff, X, Droplets, FlaskConical, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, AlertCircle, WifiOff, X, Droplets, FlaskConical, MessageCircle, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
 import { CATEGORIES } from "../utils/constants";
 import { MappedProduct } from "../interfaces/types/types";
+
+// ==========================================
+// COMPONENTE PARA INTERACCIÓN DE ZOOM (PC Y MÓVIL)
+// ==========================================
+function ZoomableImage({ src, alt }: { src: string; alt: string }) {
+  const [zoom, setZoom] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Manejo para PC: Mover el cursor desplaza el foco de la lupa
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!zoom || !containerRef.current) return;
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setPosition({ x, y });
+  };
+
+  // Alternar zoom con click simple en escritorio
+  const toggleZoom = () => setZoom(!zoom);
+
+  // Manejo para móviles: Doble toque rápido para activar/desactivar zoom
+  let lastTap = 0;
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
+    if (now - lastTap < DOUBLE_PRESS_DELAY) {
+      setZoom((prev) => !prev);
+
+      if (containerRef.current && e.touches[0]) {
+        const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+        const x = ((e.touches[0].clientX - left) / width) * 100;
+        const y = ((e.touches[0].clientY - top) / height) * 100;
+        setPosition({ x, y });
+      }
+    }
+    lastTap = now;
+  };
+
+  // Arrastrar el dedo mueve la imagen ampliada en móviles
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!zoom || !containerRef.current || e.touches.length === 0) return;
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+    let x = ((e.touches[0].clientX - left) / width) * 100;
+    let y = ((e.touches[0].clientY - top) / height) * 100;
+
+    // Acotar límites para que la experiencia fluya bien
+    x = Math.max(0, Math.min(100, x));
+    y = Math.max(0, Math.min(100, y));
+
+    setPosition({ x, y });
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full h-full relative overflow-hidden flex items-center justify-center select-none"
+      onMouseMove={handleMouseMove}
+      onClick={toggleZoom}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      style={{ cursor: zoom ? "zoom-out" : "zoom-in" }}
+    >
+      {/* Indicadores contextuales de usabilidad */}
+      {!zoom && (
+        <div className="absolute bottom-3 right-3 bg-black/60 text-white p-2 rounded-full pointer-events-none z-10 flex items-center gap-1 text-xs backdrop-blur-xs md:flex hidden">
+          <ZoomIn className="w-3.5 h-3.5" /> Haz click para zoom
+        </div>
+      )}
+      {!zoom && (
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 rounded-full pointer-events-none z-10 flex items-center gap-1 text-[11px] backdrop-blur-xs md:hidden">
+          <ZoomIn className="w-3.5 h-3.5" /> Doble toque para hacer zoom
+        </div>
+      )}
+
+      <img
+        src={src}
+        alt={alt}
+        className="max-w-full max-h-full object-contain drop-shadow-md transition-transform duration-150 ease-out"
+        style={{
+          transform: zoom ? `scale(2.2)` : `scale(1.05)`,
+          transformOrigin: `${position.x}% ${position.y}%`,
+        }}
+      />
+    </div>
+  );
+}
 
 export default function Products() {
   const { productos, loading, isFallback, apiDebugInfo } = useProducts();
@@ -24,19 +111,22 @@ export default function Products() {
     return () => { document.body.style.overflow = "unset"; };
   }, [productoSeleccionado]);
 
+  // Resetear el índice multimedia si cambia el producto activo
+  useEffect(() => {
+    setCurrentImgIndex(0);
+  }, [productoSeleccionado]);
+
   // =========================================================
   // FUNCIÓN PARA SEPARAR Y DESTACAR EL REGISTRO ICA DEL TEXTO
   // =========================================================
   const renderTextoConIcaDestacado = (texto: string, esModal = false) => {
     if (!texto) return null;
 
-    // Expresión regular para detectar patrones como "REGISTRO DE VENTA ICA NO. 5795" o similares
     const regexIca = /(REGISTRO DE VENTA ICA\s*(?:NO\.|N°|NUMERO)?\s*\d+)/i;
     const coincidencia = texto.match(regexIca);
 
     if (coincidencia) {
       const textoIca = coincidencia[1];
-      // Remueve el fragmento del ICA del texto original y limpia espacios u puntos sobrantes al inicio
       const textoRestante = texto.replace(textoIca, "").replace(/^[\s.,;:-]+/, "");
 
       return (
@@ -51,7 +141,6 @@ export default function Products() {
       );
     }
 
-    // Respaldo por si el producto no tiene un registro ICA en su descripción
     return (
       <p className={esModal ? "text-gray-700 text-sm leading-relaxed" : "text-gray-500 text-sm line-clamp-2 leading-relaxed"}>
         {texto}
@@ -64,40 +153,35 @@ export default function Products() {
   // ==========================================
   const obtenerGaleriaUnificada = (): string[] => {
     if (!productoSeleccionado) return [];
-
     let listaUrls: string[] = [];
 
-    // 1. Si viene el array de imágenes oficial de WooCommerce mapeado ({ src: '...' })
     if (productoSeleccionado.images && Array.isArray(productoSeleccionado.images) && productoSeleccionado.images.length > 0) {
       listaUrls = productoSeleccionado.images.map(img => typeof img === 'string' ? img : img.src);
     }
-    // 2. Alternativa: Si guardaron un array llamado 'imagenes' (común en Home)
     // @ts-ignore
     else if (productoSeleccionado.imagenes && Array.isArray(productoSeleccionado.imagenes)) {
       // @ts-ignore
       listaUrls = productoSeleccionado.imagenes;
     }
 
-    // 3. Respaldo obligatorio: Si la lista está vacía pero hay una imagen de portada fija, la añadimos
     if (listaUrls.length === 0 && productoSeleccionado.image) {
       listaUrls = [productoSeleccionado.image];
     }
 
-    // Filtramos cualquier valor nulo o vacío por seguridad
     return listaUrls.filter(url => !!url);
   };
 
   const galeriaImagenes = obtenerGaleriaUnificada();
 
   const siguienteImagen = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Evita que se cierre el modal accidentalmente
+    e.stopPropagation();
     if (galeriaImagenes.length > 1) {
       setCurrentImgIndex((prev) => (prev + 1) % galeriaImagenes.length);
     }
   };
 
   const anteriorImagen = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Evita que se cierre el modal accidentalmente
+    e.stopPropagation();
     if (galeriaImagenes.length > 1) {
       setCurrentImgIndex((prev) => (prev - 1 + galeriaImagenes.length) % galeriaImagenes.length);
     }
@@ -161,7 +245,6 @@ export default function Products() {
               </div>
             </div>
 
-            {/* Diagnostic Panel */}
             {showDebugPanel && apiDebugInfo && (
               <div className="mt-5 border-t border-amber-200/50 pt-5 space-y-5">
                 <div className="bg-amber-100/30 rounded-xl p-4 text-xs border border-amber-200/20 shadow-xs">
@@ -249,7 +332,6 @@ export default function Products() {
                       <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-green-600 transition-colors">
                         {product.name}
                       </h3>
-                      {/* MODIFICADO: Ahora renderiza dinámicamente separando el Registro ICA si existe */}
                       {renderTextoConIcaDestacado(product.description, false)}
                     </div>
 
@@ -296,7 +378,7 @@ export default function Products() {
         )}
       </div>
 
-      {/* MODAL RESPONSIVE CON CARRUSEL CORREGIDO */}
+      {/* MODAL RESPONSIVE CON INTERACCIÓN DE ZOOM */}
       {productoSeleccionado && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) setProductoSeleccionado(null); }}
@@ -311,14 +393,15 @@ export default function Products() {
               <X className="w-5 h-5 text-gray-800" />
             </button>
 
-            {/* COLUMNA IZQUIERDA: Imagenes con Cambio de Estado de Index */}
-            <div className="w-full md:w-1/2 bg-gray-50 relative flex items-center justify-center p-4 md:p-8 h-72 md:h-full border-b md:border-b-0 md:border-r border-gray-100 group/modal">
+            {/* COLUMNA IZQUIERDA: Imagenes con Zoom Dinámico */}
+            <div className="w-full md:w-1/2 bg-gray-50 relative flex items-center justify-center p-4 md:p-8 h-80 md:h-full border-b md:border-b-0 md:border-r border-gray-100 group/modal">
               {galeriaImagenes.length > 0 ? (
                 <div className="w-full h-full flex items-center justify-center relative">
-                  <img
+
+                  {/* INYECCIÓN DEL COMPONENTE INTERACTIVO DE ZOOM */}
+                  <ZoomableImage
                     src={galeriaImagenes[currentImgIndex]}
                     alt={productoSeleccionado.name}
-                    className="max-w-full max-h-full object-contain drop-shadow-md transition-all duration-300 scale-105 md:scale-110"
                   />
 
                   {/* Flechas Laterales */}
@@ -339,7 +422,6 @@ export default function Products() {
                         <ChevronRight className="w-6 h-6 stroke-[2.5]" />
                       </button>
 
-                      {/* Indicador de posición visual */}
                       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-3 py-1 rounded-full font-semibold tracking-wider backdrop-blur-xs">
                         {currentImgIndex + 1} / {galeriaImagenes.length}
                       </div>
@@ -354,7 +436,7 @@ export default function Products() {
             </div>
 
             {/* COLUMNA DERECHA: Información Técnica */}
-            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto h-[calc(90vh-288px)] md:h-full">
+            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto h-[calc(90vh-320px)] md:h-full">
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight pr-8">
@@ -362,7 +444,6 @@ export default function Products() {
                   </h3>
                 </div>
 
-                {/* MODIFICADO: Aplica el destacado del ICA sobre la descripción completa del modal */}
                 <div className="border-l-4 border-green-500 pl-4 bg-green-50/40 py-3.5 rounded-r-2xl">
                   {renderTextoConIcaDestacado(productoSeleccionado.fullDescription || productoSeleccionado.description, true)}
                 </div>

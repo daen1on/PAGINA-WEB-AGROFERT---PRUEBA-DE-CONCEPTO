@@ -1,11 +1,99 @@
 // app/pages/Home.tsx
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router";
-import { ArrowRight, Leaf, TrendingUp, Award, Users, X, ChevronLeft, ChevronRight, MessageCircle, CheckCircle, Droplets, FlaskConical } from "lucide-react";
+import { ArrowRight, Leaf, TrendingUp, Award, Users, X, ChevronLeft, ChevronRight, MessageCircle, CheckCircle, Droplets, FlaskConical, ZoomIn } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import logo from '../../assets/logo-agrofert.svg';
 import { useFeaturedProducts } from "../hooks/useFeaturedProducts";
 import { EstrellaProduct } from "../interfaces/types/types";
+
+// ==========================================
+// COMPONENTE PARA ZOOM EN PC (MOUSE) Y MÓVIL (TOUCH)
+// ==========================================
+function ZoomableImage({ src, alt }: { src: string; alt: string }) {
+  const [zoom, setZoom] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Manejo para PC: Mover el mouse cambia el foco del zoom
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!zoom || !containerRef.current) return;
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setPosition({ x, y });
+  };
+
+  // Alternar zoom al hacer click en PC
+  const toggleZoom = () => setZoom(!zoom);
+
+  // Manejo para Móviles: Doble toque para activar/desactivar zoom
+  let lastTap = 0;
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
+    if (now - lastTap < DOUBLE_PRESS_DELAY) {
+      setZoom((prev) => !prev);
+
+      // Si se activa el zoom en móvil, centramos por defecto la vista
+      if (containerRef.current && e.touches[0]) {
+        const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+        const x = ((e.touches[0].clientX - left) / width) * 100;
+        const y = ((e.touches[0].clientY - top) / height) * 100;
+        setPosition({ x, y });
+      }
+    }
+    lastTap = now;
+  };
+
+  // Mover el dedo arrastra la imagen ampliada en móviles
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!zoom || !containerRef.current || e.touches.length === 0) return;
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+    let x = ((e.touches[0].clientX - left) / width) * 100;
+    let y = ((e.touches[0].clientY - top) / height) * 100;
+
+    // Limitar los rangos para evitar que se desborde visualmente
+    x = Math.max(0, Math.min(100, x));
+    y = Math.max(0, Math.min(100, y));
+
+    setPosition({ x, y });
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full h-full relative overflow-hidden flex items-center justify-center select-none"
+      onMouseMove={handleMouseMove}
+      onClick={toggleZoom}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      style={{ cursor: zoom ? "zoom-out" : "zoom-in" }}
+    >
+      {/* Indicador visual flotante de que se puede hacer zoom si no está activo */}
+      {!zoom && (
+        <div className="absolute bottom-3 right-3 bg-black/60 text-white p-2 rounded-full pointer-events-none z-10 flex items-center gap-1 text-xs backdrop-blur-xs md:flex hidden">
+          <ZoomIn className="w-3.5 h-3.5" /> Haz click para zoom
+        </div>
+      )}
+      {!zoom && (
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 rounded-full pointer-events-none z-10 flex items-center gap-1 text-[11px] backdrop-blur-xs md:hidden">
+          <ZoomIn className="w-3.5 h-3.5" /> Doble toque para hacer zoom
+        </div>
+      )}
+
+      <img
+        src={src}
+        alt={alt}
+        className="max-w-full max-h-full object-contain drop-shadow-md transition-transform duration-150 ease-out"
+        style={{
+          transform: zoom ? `scale(2.2)` : `scale(1.05)`,
+          transformOrigin: `${position.x}% ${position.y}%`,
+        }}
+      />
+    </div>
+  );
+}
 
 export default function Home() {
   const { productos, loading, isFallback } = useFeaturedProducts();
@@ -23,9 +111,11 @@ export default function Home() {
     return () => { document.body.style.overflow = "unset"; };
   }, [productoSeleccionado]);
 
-  // =========================================================
-  // FUNCIÓN PARA SEPARAR Y DESTACAR EL REGISTRO ICA DEL TEXTO
-  // =========================================================
+  // Resetear el índice de zoom/imagen cuando cambia el producto seleccionado
+  useEffect(() => {
+    setCurrentImgIndex(0);
+  }, [productoSeleccionado]);
+
   const renderTextoConIcaDestacado = (texto: string, esModal = false) => {
     if (!texto) return null;
 
@@ -55,26 +145,19 @@ export default function Home() {
     );
   };
 
-  // ==========================================
-  // EXTRACCIÓN EXTRA-SEGURA PARA LA GALERÍA DEL HOME
-  // ==========================================
   const obtenerGaleriaHome = (): string[] => {
     if (!productoSeleccionado) return [];
-
     let lista: string[] = [];
 
-    // 1. Validar propiedad .imagenes (Array de strings)
     if (productoSeleccionado.imagenes && Array.isArray(productoSeleccionado.imagenes) && productoSeleccionado.imagenes.length > 0) {
       lista = productoSeleccionado.imagenes;
     }
-    // 2. Validar propiedad .images de WooCommerce por compatibilidad
     // @ts-ignore
     else if (productoSeleccionado.images && Array.isArray(productoSeleccionado.images)) {
       // @ts-ignore
       lista = productoSeleccionado.images.map(img => typeof img === 'string' ? img : img.src);
     }
 
-    // 3. Respaldo de imagen única destacada (.img o .image)
     if (lista.length === 0) {
       if (productoSeleccionado.img) lista = [productoSeleccionado.img];
       // @ts-ignore
@@ -136,7 +219,7 @@ export default function Home() {
             <img src={logo} alt="Logo Agrofert" className="h-24 md:h-34 w-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] object-contain" />
           </div>
           <h1 className="text-5xl md:text-6xl font-bold mb-6">Fertilizantes de Alta Calidad para tu Cultivo</h1>
-          <p className="text-xl md:text-2xl mb-8">Potenciamos tu production agrícola con soluciones innovadoras y sostenibles</p>
+          <p className="text-xl md:text-2xl mb-8">Potenciamos tu producción agrícola con soluciones innovadoras y sostenibles</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/productos" className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors inline-flex items-center justify-center gap-2">
               Ver Productos <ArrowRight className="w-5 h-5" />
@@ -204,10 +287,7 @@ export default function Home() {
                 productos.map((producto) => (
                   <div
                     key={producto.id}
-                    onClick={() => {
-                      setCurrentImgIndex(0);
-                      setProductoSeleccionado(producto);
-                    }}
+                    onClick={() => setProductoSeleccionado(producto)}
                     className="snap-center shrink-0 w-80 bg-white text-gray-900 rounded-3xl p-0 cursor-pointer hover:-translate-y-2 transition-all duration-300 text-left shadow-lg overflow-hidden flex flex-col border border-gray-100/50 group"
                   >
                     <div className="w-full h-64 overflow-hidden bg-gray-50 relative p-3 flex items-center justify-center border-b border-gray-100">
@@ -228,7 +308,6 @@ export default function Home() {
                     <div className="p-6 flex-1 flex flex-col justify-between bg-white">
                       <div>
                         <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1 group-hover:text-green-600 transition-colors">{producto.nombre}</h3>
-                        {/* MODIFICADO AQUÍ: Separador dinámico del Registro ICA para las descripciones del carrusel */}
                         {renderTextoConIcaDestacado(producto.descBreve, false)}
                       </div>
                       <div className="pt-3 border-t border-gray-100 flex items-center justify-between mt-auto">
@@ -289,7 +368,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MODAL DEL HOME CON CORRECCIÓN DE INDICE MULTIMEDIA */}
+      {/* MODAL DEL HOME CON ZOOM REESTRUCTURADO */}
       {productoSeleccionado && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) setProductoSeleccionado(null); }}
@@ -304,14 +383,15 @@ export default function Home() {
               <X className="w-5 h-5 text-gray-800" />
             </button>
 
-            {/* IZQUIERDA: Galería con Index Evaluado */}
-            <div className="w-full md:w-1/2 bg-gray-50 relative flex items-center justify-center p-4 md:p-8 h-72 md:h-full border-b md:border-b-0 md:border-r border-gray-100">
+            {/* IZQUIERDA: Galería con Zoom dinámico integrado */}
+            <div className="w-full md:w-1/2 bg-gray-50 relative flex items-center justify-center p-4 md:p-8 h-80 md:h-full border-b md:border-b-0 md:border-r border-gray-100">
               {galeriaImagenes.length > 0 ? (
                 <div className="w-full h-full flex items-center justify-center relative">
-                  <img
+
+                  {/* AQUÍ INYECTAMOS NUESTRO COMPONENTE CON ZOOM */}
+                  <ZoomableImage
                     src={galeriaImagenes[currentImgIndex]}
                     alt={productoSeleccionado.nombre}
-                    className="max-w-full max-h-full object-contain drop-shadow-md scale-105 md:scale-110 transition-all duration-300"
                   />
 
                   {galeriaImagenes.length > 1 && (
@@ -345,7 +425,7 @@ export default function Home() {
             </div>
 
             {/* DERECHA: Información Técnica */}
-            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto h-[calc(90vh-288px)] md:h-full">
+            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto h-[calc(90vh-320px)] md:h-full">
               <div className="space-y-6">
                 <div>
                   <h3 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight pr-8">
@@ -353,7 +433,6 @@ export default function Home() {
                   </h3>
                 </div>
 
-                {/* MODIFICADO AQUÍ: Aplica el destacado e inyección del Registro ICA sobre descLarga en el modal */}
                 <div className="border-l-4 border-green-500 pl-4 bg-green-50/40 py-3.5 rounded-r-2xl">
                   {renderTextoConIcaDestacado(productoSeleccionado.descLarga, true)}
                 </div>
