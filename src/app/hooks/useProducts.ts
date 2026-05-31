@@ -16,7 +16,7 @@ export const useProducts = () => {
 
         const isDev = import.meta.env.DEV || import.meta.env.VITE_ENV === 'development';
         const baseUrl = isDev ? '' : 'https://www.agrofert.com.co';
-        //vamos a traer solo los datos necesarios para que sea mas rapido
+
         const url = `${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&per_page=100&_fields=id,name,description,short_description,images,categories,attributes`;
 
         const maskedUrl = `${isDev ? '[LOCAL PROXY]' : 'https://www.agrofert.com.co'}/wp-json/wc/v3/products?consumer_key=ck_7752...1c2a&consumer_secret=cs_bbe4...2477&per_page=100`;
@@ -51,17 +51,12 @@ export const useProducts = () => {
                 const mappedData: MappedProduct[] = data.map((item) => {
                     console.log(`Procesando producto ID ${item.id}: ${item.name}`);
 
-                    if (item.categories && item.categories.length > 0) {
-                        console.log(item.categories[0]);
-                    }
-
                     let categoriesArray: string[] = [];
 
                     if (item.categories && item.categories.length > 0) {
                         for (const cat of item.categories) {
                             const firstCat = cat.slug.toLowerCase();
 
-                            // 2. Quitamos los "else if" y usamos "if" independientes con .push()
                             if (firstCat.includes("itrogen")) categoriesArray.push("nitrogenados");
                             if (firstCat.includes("osfor")) categoriesArray.push("fosforados");
                             if (firstCat.includes("otasi")) categoriesArray.push("potasicos");
@@ -70,7 +65,6 @@ export const useProducts = () => {
                         }
                     }
 
-                    // 3. Si el producto no coincidió con ninguna de las anteriores, le dejas "all"
                     if (categoriesArray.length === 0) {
                         categoriesArray.push("all");
                     }
@@ -102,19 +96,27 @@ export const useProducts = () => {
 
                     const cardDesc = cleanShort || (finalDescription.length > 120 ? finalDescription.substring(0, 117) + "..." : finalDescription) || "Sin descripción disponible";
 
-                    // Extraemos un string plano de categoría para el icono por defecto de la interfaz
                     const primaryCategoryForIcon = categoriesArray[0] || "all";
+
+                    // =======================================================
+                    // SOLUCIÓN: EXTRACTOR CON FILTRADO DE IMAGEN DUPLICADA
+                    // =======================================================
+                    // Si hay más de una imagen, excluimos la primera (index 0) para que no se repita en la ficha técnica.
+                    const allImagesMapped = item.images && item.images.length > 1
+                        ? item.images.slice(1).map(img => ({ src: img.src }))
+                        : [];
 
                     return {
                         id: item.id,
                         name: item.name,
-                        category: categoriesArray, // Aquí inyectamos el array con múltiples categorías
+                        category: categoriesArray,
                         description: cardDesc,
                         fullDescription: finalDescription || "Sin descripción detallada disponible.",
                         composition: composition,
                         application: application,
                         image: item.images && item.images.length > 0 ? item.images[0].src : undefined,
-                        icon: getIconForCategory(primaryCategoryForIcon), // Corregido pasándole un string válido
+                        images: allImagesMapped, // Galería limpia sin la foto de portada repetida
+                        icon: getIconForCategory(primaryCategoryForIcon),
                     };
                 });
 

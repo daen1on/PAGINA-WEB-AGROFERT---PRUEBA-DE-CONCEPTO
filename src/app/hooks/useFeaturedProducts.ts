@@ -16,7 +16,6 @@ export const useFeaturedProducts = () => {
         const isDev = import.meta.env.DEV || import.meta.env.VITE_ENV === 'development';
         const baseUrl = isDev ? '' : 'https://www.agrofert.com.co';
 
-        // Agregamos _fields para optimizar el rendimiento de descarga
         const url = `${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&include=23376,23351,23394,23377,23332,23406,23419&_fields=id,name,description,short_description,images,attributes`;
 
         console.group("%c[Home Featured Products Fetch]", "color: #2563eb; font-weight: bold;");
@@ -65,6 +64,14 @@ export const useFeaturedProducts = () => {
                         ? (rawBreve.length > 120 ? rawBreve.substring(0, 117) + '...' : rawBreve)
                         : (descLarga.length > 120 ? descLarga.substring(0, 117) + '...' : descLarga);
 
+                    // =======================================================
+                    // SOLUCIÓN: EXTRACTOR CON FILTRADO DE IMAGEN DUPLICADA
+                    // =======================================================
+                    // Extraemos del index 1 en adelante para no duplicar la foto principal (index 0)
+                    const allUrlsArray = item.images && item.images.length > 1
+                        ? item.images.slice(1).map((img: any) => img.src)
+                        : [];
+
                     return {
                         id: item.id,
                         nombre: item.name,
@@ -73,6 +80,7 @@ export const useFeaturedProducts = () => {
                         aplicacion: application,
                         composicion: compositionArray,
                         img: item.images?.length > 0 ? item.images[0].src : undefined,
+                        imagenes: allUrlsArray // Galería secundaria libre de duplicados
                     };
                 });
 
