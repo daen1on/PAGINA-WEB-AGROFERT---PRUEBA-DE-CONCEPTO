@@ -14,9 +14,17 @@ export default function Products() {
   const [productoSeleccionado, setProductoSeleccionado] = useState<MappedProduct | null>(null);
 
   const filteredProducts = productos.filter((product) => {
-    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
+    // EVALUACIÓN MULTI-CATEGORÍA:
+    // Revisamos si la categoría activa está incluida dentro del array que nos envía WooCommerce
+    const matchesCategory =
+      selectedCategory === "all" ||
+      (Array.isArray(product.category)
+        ? product.category.includes(selectedCategory)
+        : product.category === selectedCategory);
+
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase());
+
     return matchesCategory && matchesSearch;
   });
 
@@ -96,8 +104,8 @@ export default function Products() {
               key={category.id}
               onClick={() => setSelectedCategory(category.id)}
               className={`px-6 py-2 rounded-full font-medium transition-all ${selectedCategory === category.id
-                  ? "bg-green-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                ? "bg-green-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
                 }`}
             >
               {category.label}
@@ -220,7 +228,7 @@ export default function Products() {
                 <a
                   href={`https://wa.me/573000000000?text=Hola,%20estoy%20interesado%20en%20*${productoSeleccionado.name}*.`}
                   target="_blank" rel="noopener noreferrer"
-                  className="bg-[#25D366] hover:bg-[#128C7E] text-white px-6 py-4 rounded-xl font-bold flex-1 text-center flex items-center justify-center gap-2"
+                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-4 rounded-xl font-bold flex-1 text-center flex items-center justify-center gap-2"
                 >
                   <MessageCircle className="w-6 h-6" /> Cotizar por WhatsApp
                 </a>
