@@ -1,4 +1,4 @@
-// types.ts
+// app/interfaces/types/types.ts
 export interface WCProduct {
     id: number;
     name: string;
@@ -12,12 +12,13 @@ export interface WCProduct {
 export interface MappedProduct {
     id: number;
     name: string;
-    category: string;
+    category: string | string[];
     description: string;
     fullDescription?: string;
     composition: string;
     application: string;
     image?: string;
+    images?: string[]; // <-- NUEVO: Para el carrusel del modal
     icon: React.ComponentType<any>;
 }
 
@@ -32,6 +33,7 @@ export interface ApiDebugInfo {
     detailedSolution: string;
     rawErrorStack?: string;
 }
+
 export interface EstrellaProduct {
     id: number;
     nombre: string;
@@ -40,4 +42,5 @@ export interface EstrellaProduct {
     aplicacion: string;
     composicion: string[];
     img?: string;
+    imagenes?: string[]; // <-- NUEVO: Para el carrusel del modal en Home
 }
