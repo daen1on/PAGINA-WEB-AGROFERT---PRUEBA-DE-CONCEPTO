@@ -18,7 +18,6 @@ export const useProducts = () => {
         const baseUrl = isDev ? '' : 'https://www.agrofert.com.co';
         //vamos a traer solo los datos necesarios para que sea mas rapido
         const url = `${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&per_page=100&_fields=id,name,description,short_description,images,categories,attributes`;
-        //const url = `${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&per_page=100`;
 
         const maskedUrl = `${isDev ? '[LOCAL PROXY]' : 'https://www.agrofert.com.co'}/wp-json/wc/v3/products?consumer_key=ck_7752...1c2a&consumer_secret=cs_bbe4...2477&per_page=100`;
 
@@ -51,18 +50,29 @@ export const useProducts = () => {
 
                 const mappedData: MappedProduct[] = data.map((item) => {
                     console.log(`Procesando producto ID ${item.id}: ${item.name}`);
-                    console.log(item.categories[0]);
-                    let category = "all";
+
                     if (item.categories && item.categories.length > 0) {
-                       for (const cat of item.categories) {
+                        console.log(item.categories[0]);
+                    }
+
+                    let categoriesArray: string[] = [];
+
+                    if (item.categories && item.categories.length > 0) {
+                        for (const cat of item.categories) {
                             const firstCat = cat.slug.toLowerCase();
-                            if (firstCat.includes("itrogen")) category = "nitrogenados";
-                            else if (firstCat.includes("osfor")) category = "fosforados";
-                            else if (firstCat.includes("otasi")) category = "potasicos";
-                            else if (firstCat.includes("rgani")) category = "organicos";
-                            else if (firstCat.includes("icro") || firstCat.includes("nutri")) category = "micronutrientes";
-                            else category = firstCat;
+
+                            // 2. Quitamos los "else if" y usamos "if" independientes con .push()
+                            if (firstCat.includes("itrogen")) categoriesArray.push("nitrogenados");
+                            if (firstCat.includes("osfor")) categoriesArray.push("fosforados");
+                            if (firstCat.includes("otasi")) categoriesArray.push("potasicos");
+                            if (firstCat.includes("rgani")) categoriesArray.push("organicos");
+                            if (firstCat.includes("icro") || firstCat.includes("nutri")) categoriesArray.push("micronutrientes");
                         }
+                    }
+
+                    // 3. Si el producto no coincidió con ninguna de las anteriores, le dejas "all"
+                    if (categoriesArray.length === 0) {
+                        categoriesArray.push("all");
                     }
 
                     const rawShort = item.short_description || "";
@@ -92,16 +102,19 @@ export const useProducts = () => {
 
                     const cardDesc = cleanShort || (finalDescription.length > 120 ? finalDescription.substring(0, 117) + "..." : finalDescription) || "Sin descripción disponible";
 
+                    // Extraemos un string plano de categoría para el icono por defecto de la interfaz
+                    const primaryCategoryForIcon = categoriesArray[0] || "all";
+
                     return {
                         id: item.id,
                         name: item.name,
-                        category: category,
+                        category: categoriesArray, // Aquí inyectamos el array con múltiples categorías
                         description: cardDesc,
                         fullDescription: finalDescription || "Sin descripción detallada disponible.",
                         composition: composition,
                         application: application,
                         image: item.images && item.images.length > 0 ? item.images[0].src : undefined,
-                        icon: getIconForCategory(category),
+                        icon: getIconForCategory(primaryCategoryForIcon), // Corregido pasándole un string válido
                     };
                 });
 
@@ -126,7 +139,7 @@ export const useProducts = () => {
                         rawErrorStack: error.stack
                     };
                 });
-                setProductos(STATIC_PRODUCTS);
+                setProductos(STATIC_PRODUCTS as any);
                 setIsFallback(true);
                 setLoading(false);
                 console.groupEnd();
