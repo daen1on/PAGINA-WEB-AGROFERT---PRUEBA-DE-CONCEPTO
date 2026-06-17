@@ -15,7 +15,7 @@ export default function Crops() {
     {
       id: 2,
       name: "Pera",
-      image: "/src/assets/pera.jpg", // Asegúrate de que esta ruta coincida con tu proyecto
+      image: "/src/assets/tomate.jpg", // Asegúrate de que esta ruta coincida con tu proyecto
       description: "Soluciones de fertilización para huertos frutales buscando alto rendimiento y prevención de fisiopatías.",
       nutrients: ["Nitrógeno balanceado en brotación", "Calcio para prevenir corazón pardo", "Zinc y Boro para floración"],
       products: ["Urea 46%", "Nitrato de Calcio", "Zinc Quelado"],
@@ -48,9 +48,8 @@ export default function Crops() {
           {crops.map((crop, index) => (
             <div
               key={crop.id}
-              className={`flex flex-col ${
-                index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-              } gap-8 items-center bg-gray-50 rounded-xl overflow-hidden`}
+              className={`flex flex-col ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
+                } gap-8 items-center bg-gray-50 rounded-xl overflow-hidden`}
             >
               {/* Image */}
               <div className="w-full lg:w-1/2 h-80">
@@ -98,14 +97,14 @@ export default function Crops() {
 
                 {/* Botones Modificados */}
                 <div className="mt-8 flex flex-wrap gap-4">
-                  <Link 
+                  <Link
                     to={`/cultivos/${crop.name.toLowerCase()}`}
                     className="bg-transparent border-2 border-green-600 text-green-600 hover:bg-green-50 px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer inline-block text-center"
                   >
                     Ver más
                   </Link>
                   {/* AQUÍ ESTÁ LA CORRECCIÓN: Cambiamos button por Link apuntando a /contacto */}
-                  <Link 
+                  <Link
                     to="/contacto"
                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer inline-block text-center"
                   >
