@@ -14,7 +14,7 @@ export default function Crops() {
     },
     {
       id: 2,
-      name: "Pera",
+      name: "Tomate",
       image: "/src/assets/tomate.jpg", // Asegúrate de que esta ruta coincida con tu proyecto
       description: "Soluciones de fertilización para huertos frutales buscando alto rendimiento y prevención de fisiopatías.",
       nutrients: ["Nitrógeno balanceado en brotación", "Calcio para prevenir corazón pardo", "Zinc y Boro para floración"],
