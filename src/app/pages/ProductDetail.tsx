@@ -111,7 +111,7 @@ export default function ProductDetail() {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
                 <Leaf className="w-16 h-16 text-green-600 animate-pulse mb-4" />
-                <p className="text-green-800 font-semibold text-lg tracking-wide">Cargando ficha técnica...</p>
+                <p className="text-green-800 font-semibold text-lg tracking-wide">Abonando los servidores...</p>
             </div>
         );
     }
@@ -312,7 +312,7 @@ export default function ProductDetail() {
                         {/* BOTONES DE ACCIÓN */}
                         <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
                             <a
-                                href={`https://wa.me/573000000000?text=Hola,%20estoy%20interesado%20en%20el%20producto%20*${nombreProducto}*%20que%20vi%20en%20su%20sitio%20web.`}
+                                href={`https://wa.me/573202724352?text=Hola,%20estoy%20interesado%20en%20el%20producto%20*${nombreProducto}*%20que%20vi%20en%20su%20sitio%20web.`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="bg-[#25D366] text-white hover:bg-[#128C7E] px-6 py-4 rounded-xl font-bold flex-1 text-center transition shadow-lg hover:shadow-xl flex items-center justify-center gap-3 text-base cursor-pointer"

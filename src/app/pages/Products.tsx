@@ -478,7 +478,7 @@ export default function Products() {
 
                 {/* Fila inferior: Botón completo para WhatsApp */}
                 <a
-                  href={`https://wa.me/573000000000?text=Hola,%20vengo%20de%20la%20página%20web%20y%20estoy%20interesado%20en%20el%20producto%20*${productoSeleccionado.name}*.`}
+                  href={`https://wa.me/573202724352?text=Hola,%20vengo%20de%20la%20página%20web%20y%20estoy%20interesado%20en%20el%20producto%20*${productoSeleccionado.name}*.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full bg-[#25D366] text-white hover:bg-[#128C7E] px-5 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg text-sm cursor-pointer"
