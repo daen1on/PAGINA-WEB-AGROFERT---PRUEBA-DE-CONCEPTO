@@ -450,7 +450,7 @@ export default function CropDetail() {
 
               <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100 mt-8 bg-white sticky bottom-0">
                 <a
-                  href={`https://wa.me/573000000000?text=Hola,%20estoy%20interesado%20en%20*${productoSeleccionado.name}*.`}
+                  href={`https://wa.me/573202724352?text=Hola,%20estoy%20interesado%20en%20*${productoSeleccionado.name}*.`}
                   target="_blank" rel="noopener noreferrer"
                   className="bg-[#25D366] hover:bg-[#128C7E] text-white px-5 py-3.5 rounded-xl font-bold flex-1 text-center flex items-center justify-center gap-2 transition-colors shadow-md text-sm cursor-pointer"
                 >
