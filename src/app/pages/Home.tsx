@@ -1,109 +1,18 @@
 // app/pages/Home.tsx
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router";
-import { ArrowRight, Leaf, TrendingUp, Award, Users, X, ChevronLeft, ChevronRight, MessageCircle, CheckCircle, Droplets, FlaskConical, ZoomIn } from "lucide-react";
+import { ArrowRight, Leaf, TrendingUp, Award, Users, ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import logo from '../../assets/logo-agrofert.svg';
 import { useFeaturedProducts } from "../hooks/useFeaturedProducts";
 import { EstrellaProduct } from "../interfaces/types/types";
-
-// ==========================================
-// COMPONENTE PARA ZOOM EN PC (MOUSE) Y MÓVIL (TOUCH)
-// ==========================================
-function ZoomableImage({ src, alt }: { src: string; alt: string }) {
-  const [zoom, setZoom] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!zoom || !containerRef.current) return;
-    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setPosition({ x, y });
-  };
-
-  const toggleZoom = () => setZoom(!zoom);
-
-  let lastTap = 0;
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const now = Date.now();
-    const DOUBLE_PRESS_DELAY = 300;
-    if (now - lastTap < DOUBLE_PRESS_DELAY) {
-      setZoom((prev) => !prev);
-      if (containerRef.current && e.touches[0]) {
-        const { left, top, width, height } = containerRef.current.getBoundingClientRect();
-        const x = ((e.touches[0].clientX - left) / width) * 100;
-        const y = ((e.touches[0].clientY - top) / height) * 100;
-        setPosition({ x, y });
-      }
-    }
-    lastTap = now;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!zoom || !containerRef.current || e.touches.length === 0) return;
-    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
-    let x = ((e.touches[0].clientX - left) / width) * 100;
-    let y = ((e.touches[0].clientY - top) / height) * 100;
-
-    x = Math.max(0, Math.min(100, x));
-    y = Math.max(0, Math.min(100, y));
-
-    setPosition({ x, y });
-  };
-
-  return (
-    <div
-      ref={containerRef}
-      className="w-full h-full relative overflow-hidden flex items-center justify-center select-none"
-      onMouseMove={handleMouseMove}
-      onClick={toggleZoom}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      style={{ cursor: zoom ? "zoom-out" : "zoom-in" }}
-    >
-      {!zoom && (
-        <div className="absolute bottom-3 right-3 bg-black/60 text-white p-2 rounded-full pointer-events-none z-10 flex items-center gap-1 text-xs backdrop-blur-xs md:flex hidden">
-          <ZoomIn className="w-3.5 h-3.5" /> Haz click para zoom
-        </div>
-      )}
-      {!zoom && (
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 rounded-full pointer-events-none z-10 flex items-center gap-1 text-[11px] backdrop-blur-xs md:hidden">
-          <ZoomIn className="w-3.5 h-3.5" /> Doble toque para hacer zoom
-        </div>
-      )}
-      <img
-        src={src}
-        alt={alt}
-        className="max-w-full max-h-full object-contain drop-shadow-md transition-transform duration-150 ease-out"
-        style={{
-          transform: zoom ? `scale(2.2)` : `scale(1.05)`,
-          transformOrigin: `${position.x}% ${position.y}%`,
-        }}
-      />
-    </div>
-  );
-}
+import ProductModal from "../components/ProductModal";
+import ZoomableImage from "../components/ZoomableImage";
 
 export default function Home() {
-  const { productos, loading, isFallback } = useFeaturedProducts();
+  const { productos, loading } = useFeaturedProducts();
   const [productoSeleccionado, setProductoSeleccionado] = useState<EstrellaProduct | null>(null);
-  const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const carruselRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (productoSeleccionado) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => { document.body.style.overflow = "unset"; };
-  }, [productoSeleccionado]);
-
-  useEffect(() => {
-    setCurrentImgIndex(0);
-  }, [productoSeleccionado]);
 
   const renderTextoConIcaDestacado = (texto: string, esModal = false) => {
     if (!texto) return null;
@@ -130,43 +39,6 @@ export default function Home() {
         {texto}
       </p>
     );
-  };
-
-  const obtenerGaleriaHome = (): string[] => {
-    if (!productoSeleccionado) return [];
-    let lista: string[] = [];
-
-    if (productoSeleccionado.imagenes && Array.isArray(productoSeleccionado.imagenes) && productoSeleccionado.imagenes.length > 0) {
-      lista = productoSeleccionado.imagenes;
-    }
-    // @ts-ignore
-    else if (productoSeleccionado.images && Array.isArray(productoSeleccionado.images)) {
-      // @ts-ignore
-      lista = productoSeleccionado.images.map(img => typeof img === 'string' ? img : img.src);
-    }
-
-    if (lista.length === 0) {
-      if (productoSeleccionado.img) lista = [productoSeleccionado.img];
-      // @ts-ignore
-      else if (productoSeleccionado.image) lista = [productoSeleccionado.image];
-    }
-    return lista.filter(url => !!url);
-  };
-
-  const galeriaImagenes = obtenerGaleriaHome();
-
-  const siguienteImagen = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (galeriaImagenes.length > 1) {
-      setCurrentImgIndex((prev) => (prev + 1) % galeriaImagenes.length);
-    }
-  };
-
-  const anteriorImagen = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (galeriaImagenes.length > 1) {
-      setCurrentImgIndex((prev) => (prev - 1 + galeriaImagenes.length) % galeriaImagenes.length);
-    }
   };
 
   const moverCarrusel = (direccion: "izquierda" | "derecha") => {
@@ -354,147 +226,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* MODAL DEL HOME CON ZOOM REESTRUCTURADO */}
-      {productoSeleccionado && (
-        <div
-          onClick={(e) => { if (e.target === e.currentTarget) setProductoSeleccionado(null); }}
-          className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm cursor-pointer transition-opacity duration-200"
-        >
-          <div className="bg-white rounded-3xl max-w-5xl w-full relative flex flex-col md:flex-row overflow-hidden shadow-2xl max-h-[90vh] md:h-[650px] cursor-default animate-in fade-in zoom-in-95 duration-200">
-
-            <button
-              onClick={() => setProductoSeleccionado(null)}
-              className="absolute top-4 right-4 md:top-6 md:right-6 bg-gray-900/20 hover:bg-gray-900/40 md:bg-gray-100 p-2.5 rounded-full hover:scale-105 transition z-50 shadow-md cursor-pointer"
-            >
-              <X className="w-5 h-5 text-gray-800" />
-            </button>
-
-            {/* IZQUIERDA: Galería con Zoom dinámico integrado */}
-            <div className="w-full md:w-1/2 bg-gray-50 relative flex items-center justify-center p-4 md:p-8 h-80 md:h-full border-b md:border-b-0 md:border-r border-gray-100">
-              {galeriaImagenes.length > 0 ? (
-                <div className="w-full h-full flex items-center justify-center relative">
-                  <ZoomableImage
-                    src={galeriaImagenes[currentImgIndex]}
-                    alt={productoSeleccionado.nombre}
-                  />
-
-                  {galeriaImagenes.length > 1 && (
-                    <>
-                      <button
-                        onClick={anteriorImagen}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-gray-900 p-2.5 rounded-full shadow-xl hover:scale-110 active:scale-95 transition-all z-20 cursor-pointer border border-gray-100"
-                        aria-label="Anterior"
-                      >
-                        <ChevronLeft className="w-6 h-6 stroke-[2.5]" />
-                      </button>
-                      <button
-                        onClick={siguienteImagen}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/95 hover:bg-white text-gray-900 p-2.5 rounded-full shadow-xl hover:scale-110 active:scale-95 transition-all z-20 cursor-pointer border border-gray-100"
-                        aria-label="Siguiente"
-                      >
-                        <ChevronRight className="w-6 h-6 stroke-[2.5]" />
-                      </button>
-
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white text-xs px-3 py-1 rounded-full font-semibold backdrop-blur-xs">
-                        {currentImgIndex + 1} / {galeriaImagenes.length}
-                      </div>
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-green-50">
-                  <Leaf className="w-20 h-20 text-green-600/40" />
-                </div>
-              )}
-            </div>
-
-            {/* DERECHA: REESTRUCTURADA PARA CORRECCIÓN DE SCROLL */}
-            <div className="w-full md:w-1/2 flex flex-col h-[calc(90vh-320px)] md:h-full">
-
-              {/* CONTENEDOR DE CONTENIDO (Scrollable) */}
-              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 pb-28 scroll-smooth">
-                <div>
-                  <h3 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight pr-8">
-                    {productoSeleccionado.nombre}
-                  </h3>
-                </div>
-
-                <div className="border-l-4 border-green-500 pl-4 bg-green-50/40 py-3.5 rounded-r-2xl">
-                  {renderTextoConIcaDestacado(productoSeleccionado.descLarga, true)}
-                </div>
-
-                <div className="space-y-4">
-                  <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Droplets className="w-4 h-4 text-blue-500" />
-                      <h4 className="font-bold text-gray-900 text-sm">Modo de Aplicación</h4>
-                    </div>
-                    <p className="text-xs text-gray-600 leading-relaxed">{productoSeleccionado.aplicacion}</p>
-                  </div>
-
-                  <div className="bg-green-50/30 rounded-2xl p-4 border border-green-100/50">
-                    <div className="flex items-center gap-2 mb-2">
-                      <FlaskConical className="w-4 h-4 text-green-600" />
-                      <h4 className="font-bold text-gray-900 text-sm">Composición Química</h4>
-                    </div>
-                    <ul className="text-xs text-gray-700 space-y-1.5 font-medium">
-                      {Array.isArray(productoSeleccionado.composicion) ? (
-                        productoSeleccionado.composicion.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-green-500 mt-0.5">•</span>
-                            <span>{item}</span>
-                          </li>
-                        ))
-                      ) : (
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-500 mt-0.5">•</span>
-                          <span>{productoSeleccionado.composicion || "Ver especificaciones técnicas"}</span>
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECCIÓN DE BOTONES Fijos (Sticky Footer) */}
-              <div className="flex flex-col gap-3 pt-6 border-t border-gray-100 bg-white sticky bottom-0 z-10 p-6 md:p-8">
-
-                {/* Fila superior: Dos botones */}
-                <div className="flex flex-row gap-3">
-                  <Link
-                    to={`/producto/${productoSeleccionado.id || productoSeleccionado.nombre.toLowerCase().replace(/\s+/g, "-")}`}
-                    target="_blank"
-                    className="bg-green-600 text-white hover:bg-green-700 px-5 py-3.5 rounded-xl font-semibold flex-1 text-center transition border border-green-700 text-sm flex items-center justify-center gap-2"
-                  >
-                    Ver ficha completa
-                  </Link>
-
-                  <Link
-                    to="/distribuidores"
-                    target="_blank" // CORREGIDO: Ahora con comillas para que abra en nueva pestaña
-                    // MODIFICACIÓN: Eliminamos el onClick para que el modal NO se cierre en segundo plano
-                    className="bg-white text-gray-700 hover:bg-gray-50 px-5 py-3.5 rounded-xl font-semibold flex-1 text-center transition border border-gray-200 text-sm flex items-center justify-center"
-                  >
-                    Distribuidores
-                  </Link>
-                </div>
-
-                {/* Fila inferior: Botón completo */}
-                <a
-                  href={`https://wa.me/573202724352?text=Hola,%20vengo%20de%20la%20página%20web%20y%20estoy%20interesado%20en%20el%20producto%20*${productoSeleccionado.nombre}*.`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full bg-[#25D366] text-white hover:bg-[#128C7E] px-5 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg text-sm cursor-pointer"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  Cotizar por WhatsApp
-                </a>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
+      <ProductModal
+        isOpen={!!productoSeleccionado}
+        onClose={() => setProductoSeleccionado(null)}
+        product={productoSeleccionado}
+      />
     </div>
   );
 }

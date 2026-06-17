@@ -1,90 +1,14 @@
 // app/pages/ProductDetail.tsx
 import { useParams, Link, Navigate } from "react-router";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
     ArrowLeft, Leaf, Droplets, FlaskConical, MessageCircle,
-    ChevronLeft, ChevronRight, ZoomIn
+    ChevronLeft, ChevronRight
 } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
+import ZoomableImage from "../components/ZoomableImage";
 // NOTA: Ajusta la importación de 'useProducts' o 'useFeaturedProducts' 
 // según dónde tengas toda tu base de datos de productos.
-
-// ==========================================================
-// COMPONENTE PARA ZOOM REUTILIZADO (Compatible con Táctil)
-// ==========================================================
-function ZoomableImage({ src, alt }: { src: string; alt: string }) {
-    const [zoom, setZoom] = useState(false);
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!zoom || !containerRef.current) return;
-        const { left, top, width, height } = containerRef.current.getBoundingClientRect();
-        const x = ((e.clientX - left) / width) * 100;
-        const y = ((e.clientY - top) / height) * 100;
-        setPosition({ x, y });
-    };
-
-    const toggleZoom = () => setZoom(!zoom);
-
-    let lastTap = 0;
-    const handleTouchStart = (e: React.TouchEvent) => {
-        const now = Date.now();
-        const DOUBLE_PRESS_DELAY = 300;
-        if (now - lastTap < DOUBLE_PRESS_DELAY) {
-            setZoom((prev) => !prev);
-            if (containerRef.current && e.touches[0]) {
-                const { left, top, width, height } = containerRef.current.getBoundingClientRect();
-                const x = ((e.touches[0].clientX - left) / width) * 100;
-                const y = ((e.touches[0].clientY - top) / height) * 100;
-                setPosition({ x, y });
-            }
-        }
-        lastTap = now;
-    };
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-        if (!zoom || !containerRef.current || e.touches.length === 0) return;
-        const { left, top, width, height } = containerRef.current.getBoundingClientRect();
-        let x = ((e.touches[0].clientX - left) / width) * 100;
-        let y = ((e.touches[0].clientY - top) / height) * 100;
-        x = Math.max(0, Math.min(100, x));
-        y = Math.max(0, Math.min(100, y));
-        setPosition({ x, y });
-    };
-
-    return (
-        <div
-            ref={containerRef}
-            className="w-full h-full relative overflow-hidden flex items-center justify-center select-none"
-            onMouseMove={handleMouseMove}
-            onClick={toggleZoom}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            style={{ cursor: zoom ? "zoom-out" : "zoom-in" }}
-        >
-            {!zoom && (
-                <div className="absolute bottom-3 right-3 bg-black/60 text-white p-2 rounded-full pointer-events-none z-10 flex items-center gap-1 text-xs backdrop-blur-xs md:flex hidden">
-                    <ZoomIn className="w-3.5 h-3.5" /> Haz click para zoom
-                </div>
-            )}
-            {!zoom && (
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 rounded-full pointer-events-none z-10 flex items-center gap-1 text-[11px] backdrop-blur-xs md:hidden">
-                    <ZoomIn className="w-3.5 h-3.5" /> Doble toque
-                </div>
-            )}
-            <img
-                src={src}
-                alt={alt}
-                className="max-w-full max-h-full object-contain drop-shadow-md transition-transform duration-150 ease-out"
-                style={{
-                    transform: zoom ? `scale(2.2)` : `scale(1.05)`,
-                    transformOrigin: `${position.x}% ${position.y}%`,
-                }}
-            />
-        </div>
-    );
-}
 
 export default function ProductDetail() {
     const { id } = useParams();
@@ -131,6 +55,17 @@ export default function ProductDetail() {
     const aplicacion = productoSeleccionado.aplicacion || productoSeleccionado.application;
     // @ts-ignore
     const composicion = productoSeleccionado.composicion || productoSeleccionado.composition;
+
+    // Normaliza la composición a un array limpio sin importar si viene como string o array
+    const composicionLista: string[] = Array.isArray(composicion)
+        ? composicion.filter(Boolean)
+        : typeof composicion === "string" && composicion.trim()
+            ? composicion
+                .split(/,\s*(?=[A-ZÁÉÍÓÚÜÑ])/u)   // parte por coma seguida de mayúscula (inicio de nuevo elemento)
+                .flatMap(item => item.split(/;\s*/))  // también por punto y coma
+                .map(s => s.trim())
+                .filter(Boolean)
+            : [];
 
     // Lógica para el formato del Registro ICA
     const renderTextoConIcaDestacado = (texto: string) => {
@@ -207,10 +142,10 @@ export default function ProductDetail() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 md:-mt-20 relative z-20">
 
                 {/* CONTENEDOR PRINCIPAL TIPO FICHA */}
-                <div className="bg-white rounded-3xl shadow-xl border border-gray-100 flex flex-col lg:flex-row overflow-hidden">
+                <div className="bg-white rounded-3xl shadow-xl border border-gray-100 flex flex-col lg:flex-row">
 
-                    {/* COLUMNA IZQUIERDA: GALERÍA DE IMÁGENES */}
-                    <div className="w-full lg:w-1/2 bg-gray-50/50 relative border-b lg:border-b-0 lg:border-r border-gray-100 p-6 md:p-12 min-h-[400px] md:min-h-[600px] flex items-center justify-center group">
+                    {/* COLUMNA IZQUIERDA: GALERÍA DE IMÁGENES — STICKY */}
+                    <div className="w-full lg:w-1/2 bg-gray-50/50 relative border-b lg:border-b-0 lg:border-r border-gray-100 p-6 md:p-10 min-h-[360px] lg:min-h-0 lg:max-h-[calc(100vh-6rem)] flex items-center justify-center group overflow-hidden rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none self-start lg:sticky lg:top-4">
                         {galeriaImagenes.length > 0 ? (
                             <div className="w-full h-full flex items-center justify-center relative">
                                 <ZoomableImage
@@ -268,42 +203,52 @@ export default function ProductDetail() {
                             </div>
 
                             {/* Grid de Características */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                            <div className="flex flex-col gap-6 pt-4">
 
                                 {/* Modo de Aplicación */}
-                                <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="bg-blue-50/60 rounded-2xl p-5 border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
                                     <div className="flex items-center gap-3 mb-3">
-                                        <div className="bg-blue-100 p-2 rounded-full">
+                                        <div className="bg-blue-100 p-2 rounded-full shrink-0">
                                             <Droplets className="w-5 h-5 text-blue-600" />
                                         </div>
                                         <h4 className="font-bold text-gray-900 text-base">Modo de Aplicación</h4>
                                     </div>
-                                    <p className="text-sm text-gray-600 leading-relaxed">{aplicacion}</p>
+                                    <p className="text-sm text-gray-700 leading-relaxed">{aplicacion || "Consulte con nuestros asesores técnicos."}</p>
                                 </div>
 
                                 {/* Composición Química */}
                                 <div className="bg-green-50/50 rounded-2xl p-5 border border-green-100 shadow-sm hover:shadow-md transition-shadow">
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className="bg-green-200/60 p-2 rounded-full">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="bg-green-200/60 p-2 rounded-full shrink-0">
                                             <FlaskConical className="w-5 h-5 text-green-700" />
                                         </div>
-                                        <h4 className="font-bold text-gray-900 text-base">Composición</h4>
+                                        <h4 className="font-bold text-gray-900 text-base">Composición Química</h4>
                                     </div>
-                                    <ul className="text-sm text-gray-700 space-y-2 font-medium">
-                                        {Array.isArray(composicion) ? (
-                                            composicion.map((item, i) => (
-                                                <li key={i} className="flex items-start gap-2">
-                                                    <span className="text-green-500 mt-1 text-lg leading-none">•</span>
-                                                    <span>{item}</span>
-                                                </li>
-                                            ))
-                                        ) : (
-                                            <li className="flex items-start gap-2">
-                                                <span className="text-green-500 mt-1 text-lg leading-none">•</span>
-                                                <span>{composicion || "Ver especificaciones técnicas en el envase."}</span>
-                                            </li>
-                                        )}
-                                    </ul>
+
+                                    {composicionLista.length > 0 ? (
+                                        <ul className="space-y-2">
+                                            {composicionLista.map((item, i) => {
+                                                // Intenta separar el nombre del valor si viene con patrón "Nombre: valor" o "Nombre valor g/L"
+                                                const colonIdx = item.indexOf(":");
+                                                const label = colonIdx > -1 ? item.slice(0, colonIdx).trim() : null;
+                                                const value = colonIdx > -1 ? item.slice(colonIdx + 1).trim() : item;
+                                                return (
+                                                    <li key={i} className="flex items-center justify-between gap-3 py-1.5 border-b border-green-100/70 last:border-0">
+                                                        <span className="text-sm text-gray-700 font-medium flex-1 leading-snug">
+                                                            {label ?? value}
+                                                        </span>
+                                                        {label && (
+                                                            <span className="text-xs font-bold text-green-800 bg-green-100 border border-green-200 rounded-full px-2.5 py-0.5 whitespace-nowrap shrink-0">
+                                                                {value}
+                                                            </span>
+                                                        )}
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    ) : (
+                                        <p className="text-sm text-gray-500 italic">Ver especificaciones técnicas en el envase.</p>
+                                    )}
                                 </div>
 
                             </div>
