@@ -16,7 +16,7 @@ export function Navbar() {
       label: "Cultivos",
       subItems: [
         { path: "/cultivos/fresa", label: "Fresa" },
-        { path: "/cultivos/pera", label: "Pera" },
+        { path: "/cultivos/tomate", label: "Tomate" },
         { path: "/cultivos/papa", label: "Papa" },
       ]
     },
