@@ -44,7 +44,7 @@ export const cropDetailsData = {
   },
   pera: {
     name: "Pera",
-    heroImage: "/src/assets/pera.jpg",
+    heroImage: "/src/assets/tomate.jpg",
     heroText: "Manejo integral para huertos frutales. Estrategias para alto rendimiento, calibre uniforme y prevención de fisiopatías.",
     stats: {
       clima: "Frío a Templado (Horas frío req.)",
