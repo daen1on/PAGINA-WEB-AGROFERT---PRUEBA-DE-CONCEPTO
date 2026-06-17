@@ -14,7 +14,6 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Manejo para PC: Mover el cursor desplaza el foco de la lupa
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!zoom || !containerRef.current) return;
     const { left, top, width, height } = containerRef.current.getBoundingClientRect();
@@ -23,10 +22,8 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
     setPosition({ x, y });
   };
 
-  // Alternar zoom con click simple en escritorio
   const toggleZoom = () => setZoom(!zoom);
 
-  // Manejo para móviles: Doble toque rápido para activar/desactivar zoom
   let lastTap = 0;
   const handleTouchStart = (e: React.TouchEvent) => {
     const now = Date.now();
@@ -44,14 +41,12 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
     lastTap = now;
   };
 
-  // Arrastrar el dedo mueve la imagen ampliada en móviles
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!zoom || !containerRef.current || e.touches.length === 0) return;
     const { left, top, width, height } = containerRef.current.getBoundingClientRect();
     let x = ((e.touches[0].clientX - left) / width) * 100;
     let y = ((e.touches[0].clientY - top) / height) * 100;
 
-    // Acotar límites para que la experiencia fluya bien
     x = Math.max(0, Math.min(100, x));
     y = Math.max(0, Math.min(100, y));
 
@@ -68,7 +63,6 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
       onTouchMove={handleTouchMove}
       style={{ cursor: zoom ? "zoom-out" : "zoom-in" }}
     >
-      {/* Indicadores contextuales de usabilidad */}
       {!zoom && (
         <div className="absolute bottom-3 right-3 bg-black/60 text-white p-2 rounded-full pointer-events-none z-10 flex items-center gap-1 text-xs backdrop-blur-xs md:flex hidden">
           <ZoomIn className="w-3.5 h-3.5" /> Haz click para zoom
@@ -101,7 +95,6 @@ export default function Products() {
   const [productoSeleccionado, setProductoSeleccionado] = useState<MappedProduct | null>(null);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
 
-  // EFECTO: Bloquear el scroll del fondo cuando el modal esté abierto
   useEffect(() => {
     if (productoSeleccionado) {
       document.body.style.overflow = "hidden";
@@ -111,14 +104,10 @@ export default function Products() {
     return () => { document.body.style.overflow = "unset"; };
   }, [productoSeleccionado]);
 
-  // Resetear el índice multimedia si cambia el producto activo
   useEffect(() => {
     setCurrentImgIndex(0);
   }, [productoSeleccionado]);
 
-  // =========================================================
-  // FUNCIÓN PARA SEPARAR Y DESTACAR EL REGISTRO ICA DEL TEXTO
-  // =========================================================
   const renderTextoConIcaDestacado = (texto: string, esModal = false) => {
     if (!texto) return null;
 
@@ -148,9 +137,6 @@ export default function Products() {
     );
   };
 
-  // ==========================================
-  // REVISIÓN Y EXTRACCIÓN ROBUSTA DE LA GALERÍA
-  // ==========================================
   const obtenerGaleriaUnificada = (): string[] => {
     if (!productoSeleccionado) return [];
     let listaUrls: string[] = [];
@@ -382,9 +368,9 @@ export default function Products() {
       {productoSeleccionado && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) setProductoSeleccionado(null); }}
-          className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-200"
+          className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-200 cursor-pointer"
         >
-          <div className="bg-white rounded-3xl max-w-5xl w-full relative flex flex-col md:flex-row overflow-hidden shadow-2xl max-h-[90vh] md:h-[650px] animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-3xl max-w-5xl w-full relative flex flex-col md:flex-row overflow-hidden shadow-2xl max-h-[90vh] md:h-[650px] cursor-default animate-in fade-in zoom-in-95 duration-200">
 
             <button
               onClick={() => setProductoSeleccionado(null)}
@@ -398,7 +384,6 @@ export default function Products() {
               {galeriaImagenes.length > 0 ? (
                 <div className="w-full h-full flex items-center justify-center relative">
 
-                  {/* INYECCIÓN DEL COMPONENTE INTERACTIVO DE ZOOM */}
                   <ZoomableImage
                     src={galeriaImagenes[currentImgIndex]}
                     alt={productoSeleccionado.name}
@@ -435,9 +420,11 @@ export default function Products() {
               )}
             </div>
 
-            {/* COLUMNA DERECHA: Información Técnica */}
-            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto h-[calc(90vh-320px)] md:h-full">
-              <div className="space-y-6">
+            {/* COLUMNA DERECHA: REESTRUCTURADA CON SCROLL INDEPENDIENTE Y FOOTER FIJO */}
+            <div className="w-full md:w-1/2 flex flex-col h-[calc(90vh-320px)] md:h-full">
+
+              {/* Contenedor escroleable de la información */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 pb-28 scroll-smooth">
                 <div>
                   <h3 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight pr-8">
                     {productoSeleccionado.name}
@@ -467,21 +454,39 @@ export default function Products() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100 mt-8 bg-white sticky bottom-0">
+              {/* SECCIÓN DE BOTONES FIJOS (Grid de 3 Botones / Sticky Footer) */}
+              <div className="flex flex-col gap-3 pt-6 border-t border-gray-100 bg-white sticky bottom-0 z-10 p-6 md:p-8">
+
+                {/* Fila superior: Enlace a ProductDetails y Distribuidores */}
+                <div className="flex flex-row gap-3">
+                  <Link
+                    to={`/producto/${productoSeleccionado.id || productoSeleccionado.name.toLowerCase().replace(/\s+/g, "-")}`}
+                    target="_blank"
+                    className="bg-green-600 text-white hover:bg-green-700 px-5 py-3.5 rounded-xl font-semibold flex-1 text-center transition border border-green-700 text-sm flex items-center justify-center gap-2"
+                  >
+                    Ver ficha completa
+                  </Link>
+
+                  <Link
+                    to="/distribuidores"
+                    target="_blank"
+                    className="bg-white text-gray-700 hover:bg-gray-50 px-5 py-3.5 rounded-xl font-semibold flex-1 text-center transition border border-gray-200 text-sm flex items-center justify-center"
+                  >
+                    Distribuidores
+                  </Link>
+                </div>
+
+                {/* Fila inferior: Botón completo para WhatsApp */}
                 <a
-                  href={`https://wa.me/573000000000?text=Hola,%20estoy%20interesado%20en%20*${productoSeleccionado.name}*.`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="bg-[#25D366] hover:bg-[#128C7E] text-white px-5 py-3.5 rounded-xl font-bold flex-1 text-center flex items-center justify-center gap-2 transition-colors shadow-md text-sm cursor-pointer"
+                  href={`https://wa.me/573000000000?text=Hola,%20vengo%20de%20la%20página%20web%20y%20estoy%20interesado%20en%20el%20producto%20*${productoSeleccionado.name}*.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-[#25D366] text-white hover:bg-[#128C7E] px-5 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg text-sm cursor-pointer"
                 >
-                  <MessageCircle className="w-5 h-5" /> Cotizar por WhatsApp
+                  <MessageCircle className="w-5 h-5" />
+                  Cotizar por WhatsApp
                 </a>
-                <Link
-                  to="/distribuidores"
-                  onClick={() => setProductoSeleccionado(null)}
-                  className="bg-white text-gray-700 hover:bg-gray-50 px-5 py-3.5 rounded-xl font-semibold sm:w-1/3 text-center border border-gray-200 transition-colors text-sm"
-                >
-                  Distribuidores
-                </Link>
+
               </div>
             </div>
 

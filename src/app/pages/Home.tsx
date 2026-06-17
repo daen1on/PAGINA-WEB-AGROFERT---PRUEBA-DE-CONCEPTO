@@ -15,7 +15,6 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Manejo para PC: Mover el mouse cambia el foco del zoom
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!zoom || !containerRef.current) return;
     const { left, top, width, height } = containerRef.current.getBoundingClientRect();
@@ -24,18 +23,14 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
     setPosition({ x, y });
   };
 
-  // Alternar zoom al hacer click en PC
   const toggleZoom = () => setZoom(!zoom);
 
-  // Manejo para Móviles: Doble toque para activar/desactivar zoom
   let lastTap = 0;
   const handleTouchStart = (e: React.TouchEvent) => {
     const now = Date.now();
     const DOUBLE_PRESS_DELAY = 300;
     if (now - lastTap < DOUBLE_PRESS_DELAY) {
       setZoom((prev) => !prev);
-
-      // Si se activa el zoom en móvil, centramos por defecto la vista
       if (containerRef.current && e.touches[0]) {
         const { left, top, width, height } = containerRef.current.getBoundingClientRect();
         const x = ((e.touches[0].clientX - left) / width) * 100;
@@ -46,14 +41,12 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
     lastTap = now;
   };
 
-  // Mover el dedo arrastra la imagen ampliada en móviles
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!zoom || !containerRef.current || e.touches.length === 0) return;
     const { left, top, width, height } = containerRef.current.getBoundingClientRect();
     let x = ((e.touches[0].clientX - left) / width) * 100;
     let y = ((e.touches[0].clientY - top) / height) * 100;
 
-    // Limitar los rangos para evitar que se desborde visualmente
     x = Math.max(0, Math.min(100, x));
     y = Math.max(0, Math.min(100, y));
 
@@ -70,7 +63,6 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
       onTouchMove={handleTouchMove}
       style={{ cursor: zoom ? "zoom-out" : "zoom-in" }}
     >
-      {/* Indicador visual flotante de que se puede hacer zoom si no está activo */}
       {!zoom && (
         <div className="absolute bottom-3 right-3 bg-black/60 text-white p-2 rounded-full pointer-events-none z-10 flex items-center gap-1 text-xs backdrop-blur-xs md:flex hidden">
           <ZoomIn className="w-3.5 h-3.5" /> Haz click para zoom
@@ -81,7 +73,6 @@ function ZoomableImage({ src, alt }: { src: string; alt: string }) {
           <ZoomIn className="w-3.5 h-3.5" /> Doble toque para hacer zoom
         </div>
       )}
-
       <img
         src={src}
         alt={alt}
@@ -101,7 +92,6 @@ export default function Home() {
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const carruselRef = useRef<HTMLDivElement>(null);
 
-  // EFECTO: Evitar scroll de la página de fondo al abrir modal
   useEffect(() => {
     if (productoSeleccionado) {
       document.body.style.overflow = "hidden";
@@ -111,14 +101,12 @@ export default function Home() {
     return () => { document.body.style.overflow = "unset"; };
   }, [productoSeleccionado]);
 
-  // Resetear el índice de zoom/imagen cuando cambia el producto seleccionado
   useEffect(() => {
     setCurrentImgIndex(0);
   }, [productoSeleccionado]);
 
   const renderTextoConIcaDestacado = (texto: string, esModal = false) => {
     if (!texto) return null;
-
     const regexIca = /(REGISTRO DE VENTA ICA\s*(?:NO\.|N°|NUMERO)?\s*\d+)/i;
     const coincidencia = texto.match(regexIca);
 
@@ -137,7 +125,6 @@ export default function Home() {
         </div>
       );
     }
-
     return (
       <p className={esModal ? "text-gray-700 text-sm leading-relaxed" : "text-gray-500 text-sm line-clamp-2 leading-relaxed"}>
         {texto}
@@ -163,7 +150,6 @@ export default function Home() {
       // @ts-ignore
       else if (productoSeleccionado.image) lista = [productoSeleccionado.image];
     }
-
     return lista.filter(url => !!url);
   };
 
@@ -387,8 +373,6 @@ export default function Home() {
             <div className="w-full md:w-1/2 bg-gray-50 relative flex items-center justify-center p-4 md:p-8 h-80 md:h-full border-b md:border-b-0 md:border-r border-gray-100">
               {galeriaImagenes.length > 0 ? (
                 <div className="w-full h-full flex items-center justify-center relative">
-
-                  {/* AQUÍ INYECTAMOS NUESTRO COMPONENTE CON ZOOM */}
                   <ZoomableImage
                     src={galeriaImagenes[currentImgIndex]}
                     alt={productoSeleccionado.nombre}
@@ -424,9 +408,11 @@ export default function Home() {
               )}
             </div>
 
-            {/* DERECHA: Información Técnica */}
-            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between overflow-y-auto h-[calc(90vh-320px)] md:h-full">
-              <div className="space-y-6">
+            {/* DERECHA: REESTRUCTURADA PARA CORRECCIÓN DE SCROLL */}
+            <div className="w-full md:w-1/2 flex flex-col h-[calc(90vh-320px)] md:h-full">
+
+              {/* CONTENEDOR DE CONTENIDO (Scrollable) */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 pb-28 scroll-smooth">
                 <div>
                   <h3 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight pr-8">
                     {productoSeleccionado.nombre}
@@ -470,26 +456,42 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-gray-100 mt-8 bg-white sticky bottom-0">
+              {/* SECCIÓN DE BOTONES Fijos (Sticky Footer) */}
+              <div className="flex flex-col gap-3 pt-6 border-t border-gray-100 bg-white sticky bottom-0 z-10 p-6 md:p-8">
+
+                {/* Fila superior: Dos botones */}
+                <div className="flex flex-row gap-3">
+                  <Link
+                    to={`/producto/${productoSeleccionado.id || productoSeleccionado.nombre.toLowerCase().replace(/\s+/g, "-")}`}
+                    target="_blank"
+                    className="bg-green-600 text-white hover:bg-green-700 px-5 py-3.5 rounded-xl font-semibold flex-1 text-center transition border border-green-700 text-sm flex items-center justify-center gap-2"
+                  >
+                    Ver ficha completa
+                  </Link>
+
+                  <Link
+                    to="/distribuidores"
+                    target="_blank" // CORREGIDO: Ahora con comillas para que abra en nueva pestaña
+                    // MODIFICACIÓN: Eliminamos el onClick para que el modal NO se cierre en segundo plano
+                    className="bg-white text-gray-700 hover:bg-gray-50 px-5 py-3.5 rounded-xl font-semibold flex-1 text-center transition border border-gray-200 text-sm flex items-center justify-center"
+                  >
+                    Distribuidores
+                  </Link>
+                </div>
+
+                {/* Fila inferior: Botón completo */}
                 <a
                   href={`https://wa.me/573000000000?text=Hola,%20vengo%20de%20la%20página%20web%20y%20estoy%20interesado%20en%20el%20producto%20*${productoSeleccionado.nombre}*.`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-[#25D366] text-white hover:bg-[#128C7E] px-5 py-3.5 rounded-xl font-bold flex-1 text-center transition shadow-lg flex items-center justify-center gap-2 text-sm cursor-pointer"
+                  className="w-full bg-[#25D366] text-white hover:bg-[#128C7E] px-5 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg text-sm cursor-pointer"
                 >
                   <MessageCircle className="w-5 h-5" />
                   Cotizar por WhatsApp
                 </a>
-                <Link
-                  to="/distribuidores"
-                  onClick={() => setProductoSeleccionado(null)}
-                  className="bg-white text-gray-700 hover:bg-gray-50 px-5 py-3.5 rounded-xl font-semibold sm:w-1/3 text-center transition border border-gray-200 text-sm"
-                >
-                  Distribuidores
-                </Link>
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
       )}
