@@ -1,4 +1,4 @@
-import heroImage from "../../assets/Background-2.jpeg";
+import heroImage from "../../assets/Background-1.avif";
 import heroVideo from "../../assets/videos/Video-Agrofert-1.mp4";
 
 const HeroBackground = () => {
