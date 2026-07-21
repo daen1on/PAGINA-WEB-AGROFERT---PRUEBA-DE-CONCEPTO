@@ -8,6 +8,7 @@ import { useFeaturedProducts } from "../hooks/useFeaturedProducts";
 import { EstrellaProduct } from "../interfaces/types/types";
 import ProductModal from "../components/ProductModal";
 import ZoomableImage from "../components/ZoomableImage";
+import HeroBackground from "./HeroBackground";
 
 export default function Home() {
   const { productos, loading } = useFeaturedProducts();
@@ -65,13 +66,10 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center text-white">
+      <section className="relative min-h-[90vh] flex items-center justify-center text-white">
         <div className="absolute inset-0 bg-black/50 z-10"></div>
-        <ImageWithFallback
-          src="https://images.unsplash.com/photo-1775143305394-51365287542f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZ3JpY3VsdHVyYWwlMjBmZXJ0aWxpemVyJTIwZmFybSUyMGZpZWxkfGVufDF8fHx8MT75NjA1NjY0fD&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-          alt="Campo agrícola"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+
+        <HeroBackground />
         <div className="relative z-20 text-center px-4 max-w-4xl">
           <div className="flex justify-center gap-2">
             <img src={logo} alt="Logo Agrofert" className="h-24 md:h-34 w-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] object-contain" />

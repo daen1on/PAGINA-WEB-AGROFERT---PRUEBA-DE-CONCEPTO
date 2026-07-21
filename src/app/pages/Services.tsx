@@ -75,9 +75,13 @@ export default function Services() {
                     </li>
                   ))}
                 </ul>
-                <button className="mt-6 w-full bg-green-600 cursor-pointer hover:bg-green-700 text-white py-2 rounded-lg font-medium transition-colors">
+                <a target="_blank" rel="noopener noreferrer" 
+                href={`https://wa.me/573202724352?text=${encodeURIComponent(
+                    `Hola, vengo de la página web y estoy interesado en hablar con un asesor".`
+                  )}`}
+                className="mt-6 w-full bg-green-600 cursor-pointer hover:bg-green-700 text-white px-5 py-3.5 font-bold rounded-lg flex items-center justify-center shadow-lg text-sm transition-colors ">
                   Más Información
-                </button>
+                </a>
               </div>
             );
           })}
