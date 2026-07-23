@@ -21,31 +21,27 @@ export function Footer() {
       {/* Reducimos padding vertical de py-16 a py-10 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Reducimos gap de 12 a 8 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center md:text-left">
 
           {/* Company Info */}
-          <div className="col-span-1 space-y-3">
+          <div className="col-span-1 pt-5 space-y-3 flex justify-center md:justify-start">
             <img
               src={logo}
               alt="Logo Agrofert"
-              className="h-16 w-auto drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)]"
-            />
-            <p className="text-sm leading-relaxed italic">
-              "¡Nutriendo el campo colombiano!"
-            </p>
+              className="h-28 w-auto drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)]"
+            />            
           </div>
 
           {/* Enlaces Rápidos (Mantenemos animación) */}
-          <div>
-            <h3 className="font-bold text-white text-lg mb-4">Enlaces Rápidos</h3>
-            <ul className="space-y-2"> {/* Reducimos espacio entre links */}
+          <div className="max-w-xs mx-auto md:mx-0 translate-x-4 md:translate-x-0">
+            <h3 className="font-bold text-white text-xl md:text-lg mb-5">Enlaces Rápidos</h3>
+            <ul className="space-y-2 flex flex-col items-start w-fit mx-auto md:w-auto md:mx-0"> {/* Reducimos espacio entre links */}
               {quickLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="group flex items-center hover:text-green-500 transition-all duration-300 hover:translate-x-2"
-                  >
-                    <span className="w-0 h-0.5 bg-green-500 mr-0 group-hover:w-3 group-hover:mr-2 transition-all duration-300"></span>
+                    className="group flex items-center hover:text-green-500 transition-all duration-300 md:hover:translate-x-2">
+                    <span className="w-5 md:w-0 h-0.5 text-[17px] md:text-base bg-green-500 mr-3 md:mr-0 rounded-full transition-all md:group-hover:w-3 md:group-hover:mr-2"></span>
                     {link.label}
                   </Link>
                 </li>
@@ -54,16 +50,16 @@ export function Footer() {
           </div>
 
           {/* Empresa (Mantenemos animación) */}
-          <div>
-            <h3 className="font-bold text-white text-lg mb-4">Empresa</h3>
-            <ul className="space-y-2">
+          <div className="max-w-xs mx-auto md:mx-0">
+            <h3 className="font-bold text-white text-xl md:text-lg mb-5">Empresa</h3>
+            <ul className="space-y-2 flex flex-col items-center md:items-start">
               {companyLinks.map((link) => (
-                <li key={link.path}>
+                <li key={link.path} className="w-full">
                   <Link
                     to={link.path}
                     className="group flex items-center hover:text-green-500 transition-all duration-300 hover:translate-x-2"
                   >
-                    <span className="w-0 h-0.5 bg-green-500 mr-0 group-hover:w-3 group-hover:mr-2 transition-all duration-300"></span>
+                    <span className="w-5 md:w-0 h-0.5 text-[17px] md:text-base bg-green-500 mr-3 md:mr-0 rounded-full transition-all md:group-hover:w-3 md:group-hover:mr-2"></span>
                     {link.label}
                   </Link>
                 </li>
@@ -72,23 +68,23 @@ export function Footer() {
           </div>
 
           {/* Contact Info (Mantenemos iconos con hover verde) */}
-          <div className="space-y-4"> {/* Reducimos de space-y-6 a 4 */}
-            <h3 className="font-bold text-white text-lg mb-4">Contacto</h3>
-            <ul className="space-y-2 text-sm"> {/* Reducimos de space-y-4 a 2 */}
+          <div className="max-w-xs mx-auto md:mx-0">
+            <h3 className="font-bold text-white text-xl md:text-lg mb-5">Contacto</h3>
+            <ul className="space-y-4 text-base flex flex-col items-start mx-auto w-fit md:w-auto md:mx-0">
               <li className="flex items-center gap-3 group">
-                <div className="bg-gray-800 p-1.5 rounded-lg group-hover:bg-green-600 transition-colors">
+                <div className="bg-gray-800 p-2 rounded-lg group-hover:bg-green-600 transition-colors">
                   <Phone className="w-3.5 h-3.5 text-green-500 group-hover:text-white" />
                 </div>
                 <span>+57 320 272 4352</span>
               </li>
               <li className="flex items-center gap-3 group">
-                <div className="bg-gray-800 p-1.5 rounded-lg group-hover:bg-green-600 transition-colors">
+                <div className="bg-gray-800 p-2 rounded-lg group-hover:bg-green-600 transition-colors">
                   <Mail className="w-3.5 h-3.5 text-green-500 group-hover:text-white" />
                 </div>
                 <span>info@agrofert.com</span>
               </li>
               <li className="flex items-start gap-3 group">
-                <div className="bg-gray-800 p-1.5 rounded-lg group-hover:bg-green-600 transition-colors">
+                <div className="bg-gray-800 p-2 rounded-lg group-hover:bg-green-600 transition-colors">
                   <MapPin className="w-3.5 h-3.5 text-green-500 group-hover:text-white" />
                 </div>
                 <span>Colombia</span>
@@ -96,19 +92,18 @@ export function Footer() {
             </ul>
 
             {/* Social Icons (Mantenemos efecto salto) */}
-            <div className="flex gap-3 pt-1">
+            <div className="flex justify-center md:justify-start gap-4 pt-6 md:pt-8">
               {[
                 { Icon: Facebook, href: "https://www.facebook.com/AGROFERTCOL" },
                 { Icon: Instagram, href: "https://www.instagram.com/agrofertcol/" },
-                { Icon: Linkedin, href: "#" }
               ].map(({ Icon, href }, index) => (
                 <a
                   key={index}
                   href={href}
                   target="_blank"
-                  className="bg-gray-800 p-2.5 rounded-full hover:bg-green-600 hover:text-white hover:-translate-y-1 transition-all duration-300"
+                  className="bg-gray-800 p-3.5 rounded-full hover:bg-green-600 hover:text-white hover:-translate-y-1 transition-all duration-300"
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-5 h-5" />
                 </a>
               ))}
             </div>
@@ -116,7 +111,7 @@ export function Footer() {
         </div>
 
         {/* Copyright - Reducimos margen superior */}
-        <div className="border-t border-gray-900 mt-8 pt-6 text-[10px] text-center tracking-widest text-gray-500 uppercase">
+        <div className="border-t border-gray-800 mt-8 pt-6 text-xs text-center tracking-widest text-gray-500 uppercase">
           <p>&copy; 2026 AGROFERT. Todos los derechos reservados.</p>
         </div>
       </div>
