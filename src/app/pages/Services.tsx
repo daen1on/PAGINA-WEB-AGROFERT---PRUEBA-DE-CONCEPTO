@@ -146,12 +146,16 @@ export default function Services() {
             Contáctanos hoy y descubre cómo nuestros servicios pueden transformar tu cultivo
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white cursor-pointer text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
-              Solicitar Visita Técnica
-            </button>
-            <button className="bg-green-700 cursor-pointer hover:bg-green-800 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+          <a target="_blank" rel="noopener noreferrer" 
+                href={`https://wa.me/573202724352?text=${encodeURIComponent(
+                    `Hola, vengo de la página web y estoy interesado en hablar con un asesor".`
+                  )}`}
+                className="bg-white cursor-pointer text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
+                  Solicitar Visita Técnica
+                </a>
+            <a href="/productos" className="bg-green-700 cursor-pointer hover:bg-green-800 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
               Ver Productos
-            </button>
+            </a>
           </div>
         </div>
       </div>
