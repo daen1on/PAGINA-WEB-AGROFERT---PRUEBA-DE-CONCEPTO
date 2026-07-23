@@ -1,5 +1,6 @@
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { Target, Eye, Award, Users } from "lucide-react";
+import ImgAgro from "../../assets/About-us-img.jpg";
 
 export default function AboutUs() {
   return (
@@ -43,7 +44,7 @@ export default function AboutUs() {
             </div>
             <div className="relative h-96">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1761839257144-297ce252742e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZ3JpY3VsdHVyZSUyMHRlY2hub2xvZ3klMjBtb2Rlcm4lMjBmYXJtaW5nfGVufDF8fHx8MTc3NTYwNTY2Nnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                src={ImgAgro}
                 alt="Agricultura moderna"
                 className="w-full h-full object-cover rounded-lg shadow-lg"
               />
@@ -132,9 +133,13 @@ export default function AboutUs() {
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Nuestro equipo de expertos está listo para ayudarte a alcanzar tus objetivos de producción
           </p>
-          <button className="bg-white cursor-pointer text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
-            Contáctanos Hoy
-          </button>
+          <a target="_blank" rel="noopener noreferrer" 
+                href={`https://wa.me/573202724352?text=${encodeURIComponent(
+                    `Hola, vengo de la página web y estoy interesado en hablar con un asesor".`
+                  )}`}
+                className="bg-white cursor-pointer text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
+                  Contáctanos Hoy
+                </a>
         </section>
       </div>
     </div>
