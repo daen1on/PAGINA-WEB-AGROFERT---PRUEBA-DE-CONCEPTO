@@ -14,7 +14,7 @@ export default function Products() {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState<MappedProduct | null>(null);
 
-  const renderTextoConIcaDestacado = (texto: string, esModal = false) => {
+  const renderTextoConIcaDestacado = ( texto: string, esModal = false, textoResumen?: string) => {
     if (!texto) return null;
 
     const regexIca = /(REGISTRO DE VENTA ICA\s*(?:NO\.|N°|NUMERO)?\s*\d+)/i;
@@ -22,15 +22,17 @@ export default function Products() {
 
     if (coincidencia) {
       const textoIca = coincidencia[1];
-      const textoRestante = texto.replace(textoIca, "").replace(/^[\s.,;:-]+/, "");
 
       return (
         <div className="space-y-2">
-          <div className={`inline-block bg-green-100 text-green-800 font-bold rounded-md px-2.5 py-1 text-xs tracking-wide uppercase border border-green-200 ${esModal ? "mb-1" : ""}`}>
+          <div className={`inline-block mt-1 mb-3 bg-green-100 text-green-800 font-semibold rounded-md px-2.5 py-1 text-xs tracking-wide uppercase border border-green-200 ${esModal ? "mb-1" : ""}`}>
             {textoIca}
           </div>
+
           <p className={esModal ? "text-gray-700 text-sm leading-relaxed" : "text-gray-500 text-sm line-clamp-2 leading-relaxed"}>
-            {textoRestante}
+            {esModal
+              ? texto.replace(textoIca, "").replace(/^[\s.,;:-]+/, "")
+              : (textoResumen ?? texto.replace(textoIca, "").replace(/^[\s.,;:-]+/, ""))}
           </p>
         </div>
       );
@@ -186,8 +188,8 @@ export default function Products() {
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-green-600 transition-colors">
                         {product.name}
-                      </h3>
-                      {renderTextoConIcaDestacado(product.description, false)}
+                      </h3>                      
+                      {renderTextoConIcaDestacado(product.fullDescription, false, product.description)}
                     </div>
 
                     <div className="space-y-3 mt-auto pt-4 border-t border-gray-100">
