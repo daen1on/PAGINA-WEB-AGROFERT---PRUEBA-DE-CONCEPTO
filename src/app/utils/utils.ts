@@ -33,6 +33,8 @@ export const getDetailedSolutionText = (issue: "cors" | "credentials" | "not_fou
 export const parseWooCommerceDescription = (htmlDescription: string) => {
     if (!htmlDescription) return null;
 
+    const html = htmlDescription;
+    
     const plainText = htmlDescription
         .replace(/&nbsp;/g, ' ')
         .replace(/&amp;/g, '&')
@@ -56,15 +58,41 @@ export const parseWooCommerceDescription = (htmlDescription: string) => {
 
     const clean = (str: string) => str.replace(/\s+/g, ' ').trim();
 
-    const formatComposition = (str: string) => {
-        let c = clean(str).replace(/^[,:\s]+/, '');
-        if (!c.includes(',')) {
-            c = c
-                .replace(/\s+(F[oó]sforo|Boro|Zinc|Solubilidad|Densidad|Nitr[oó]geno|Magnesio|Calcio|Azufre|Cobre|Manganeso|Potasio|pH|Carbono)/gi, ', $1')
-                .replace(/^,\s*/, '');
-        }
-        return c;
-    };
+    const formatComposition = (html: string) => {
+
+    // Primero intentamos extraer los <li>
+    const items = Array.from(
+        html.matchAll(/<li[^>]*>(.*?)<\/li>/gis)
+    )
+        .map(match =>
+            match[1]
+                .replace(/<[^>]*>/g, "")
+                .replace(/&nbsp;/g, " ")
+                .replace(/&amp;/g, "&")
+                .replace(/\s+/g, " ")
+                .trim()
+        )
+        .filter(Boolean);
+
+    // Si existen <li>, devolvemos la lista separada por comas
+    if (items.length > 0) {
+        return items.join(",");
+    }
+
+    // Si no existen <li>, usamos el método anterior
+    let c = clean(html).replace(/^[,:\s]+/, '');
+
+    if (!c.includes(',')) {
+        c = c
+            .replace(
+                /\s+(F[oó]sforo|Boro|Zinc|Solubilidad|Densidad|Nitr[oó]geno|Magnesio|Calcio|Azufre|Cobre|Manganeso|Potasio|pH|Carbono)/gi,
+                ", $1"
+            )
+            .replace(/^,\s*/, '');
+    }
+
+    return c;
+};
 
     const splitFirst = (str: string, regex: RegExp) => {
         const match = str.match(regex);
@@ -83,10 +111,21 @@ export const parseWooCommerceDescription = (htmlDescription: string) => {
         const partsComp = splitFirst(afterApp, COMP_REGEX);
 
         if (partsComp.length > 1) {
-            const application = clean(partsComp[0]).replace(/^[:\s]+/, '');
-            const composition = formatComposition(partsComp[1]);
-            return { description, application, composition };
-        }
+
+    const application = clean(partsComp[0]).replace(/^[:\s]+/, '');
+
+    // Buscamos la sección COMPOSICIÓN dentro del HTML ORIGINAL
+    const htmlComposition =
+        html.match(/COMPOSICI[OÓ]N(?:\s+GARANTIZADA)?([\s\S]*)/i)?.[1] ?? "";
+
+    const composition = formatComposition(htmlComposition);
+
+    return {
+        description,
+        application,
+        composition
+    };
+}
 
         const application = clean(afterApp).replace(/^[:\s]+/, '');
         if (application) {
@@ -95,16 +134,22 @@ export const parseWooCommerceDescription = (htmlDescription: string) => {
     }
 
     const partsComp = splitFirst(plainText, COMP_REGEX);
-    if (partsComp.length > 1) {
-        const composition = formatComposition(partsComp[1]);
-        if (composition) {
-            return {
-                description: clean(partsComp[0]),
-                application: 'Consulte con nuestros asesores',
-                composition,
-            };
-        }
+
+if (partsComp.length > 1) {
+
+    const htmlComposition =
+        html.match(/COMPOSICI[OÓ]N(?:\s+GARANTIZADA)?([\s\S]*)/i)?.[1] ?? "";
+
+    const composition = formatComposition(htmlComposition);
+
+    if (composition) {
+        return {
+            description: clean(partsComp[0]),
+            application: "Consulte con nuestros asesores",
+            composition,
+        };
     }
+}
 
     return null;
 };

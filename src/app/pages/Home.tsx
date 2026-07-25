@@ -15,33 +15,6 @@ export default function Home() {
   const [productoSeleccionado, setProductoSeleccionado] = useState<EstrellaProduct | null>(null);
   const carruselRef = useRef<HTMLDivElement>(null);
 
-  // const renderTextoConIcaDestacado = (texto: string, esModal = false) => {
-  //   if (!texto) return null;
-  //   const regexIca = /(REGISTRO DE VENTA ICA\s*(?:NO\.|N°|NUMERO)?\s*\d+)/i;
-  //   const coincidencia = texto.match(regexIca);
-
-  //   if (coincidencia) {
-  //     const textoIca = coincidencia[1];
-  //     const textoRestante = texto.replace(textoIca, "").replace(/^[\s.,;:-]+/, "");
-
-  //     return (
-  //       <div className="space-y-2">
-  //         <div className={`inline-block bg-green-100 text-green-800 font-bold rounded-md px-2.5 py-1 text-xs tracking-wide uppercase border border-green-200 ${esModal ? "mb-1" : ""}`}>
-  //           {textoIca}
-  //         </div>
-  //         <p className={esModal ? "text-gray-700 text-sm leading-relaxed" : "text-gray-500 text-sm line-clamp-2 leading-relaxed"}>
-  //           {textoRestante}
-  //         </p>
-  //       </div>
-  //     );
-  //   }
-  //   return (
-  //     <p className={esModal ? "text-gray-700 text-sm leading-relaxed" : "text-gray-500 text-sm line-clamp-2 leading-relaxed"}>
-  //       {texto}
-  //     </p>
-  //   );
-  // };
-
   const renderTextoConIcaDestacado = ( texto: string, esModal = false, textoResumen?: string) => {
       if (!texto) return null;
 
