@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { WCProduct, MappedProduct, ApiDebugInfo } from "../interfaces/types/types";
 import { STATIC_PRODUCTS } from "../utils/constants";
-import { getIconForCategory, getDetailedSolutionText, parseWooCommerceDescription } from "../utils/utils";
+import { getIconForCategory, getDetailedSolutionText, buildProductDescriptions } from "../utils/utils";
 
 export const useProducts = () => {
     const [productos, setProductos] = useState<MappedProduct[]>([]);
@@ -69,32 +69,15 @@ export const useProducts = () => {
                         categoriesArray.push("all");
                     }
 
-                    const rawShort = item.short_description || "";
-                    const cleanShort = rawShort.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
-
-                    let finalDescription = cleanShort;
-                    let composition = "Ver especificaciones técnicas";
-                    let application = "Consulte con nuestros asesores";
-
-                    const parsedData = parseWooCommerceDescription(item.description || "");
-
-                    if (parsedData) {
-                        finalDescription = parsedData.description;
-                        application = parsedData.application;
-                        composition = parsedData.composition;
-                    } else {
-                        if (item.attributes && item.attributes.length > 0) {
-                            const compAttr = item.attributes.find(attr => attr.name.toLowerCase().includes("composic") || attr.name.toLowerCase().includes("composición"));
-                            const appAttr = item.attributes.find(attr => attr.name.toLowerCase().includes("aplicac") || attr.name.toLowerCase().includes("aplicación"));
-
-                            if (compAttr && compAttr.options?.length > 0) composition = compAttr.options.join(", ");
-                            if (appAttr && appAttr.options?.length > 0) application = appAttr.options.join(", ");
-                        }
-                        const rawFull = item.description || item.short_description || "";
-                        finalDescription = rawFull.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').trim();
-                    }
-
-                    const cardDesc = cleanShort || (finalDescription.length > 120 ? finalDescription.substring(0, 117) + "..." : finalDescription) || "Sin descripción disponible";
+                    const {
+                        cardDescription,
+                        fullDescription,
+                        application,
+                        composition
+                    } = buildProductDescriptions(
+                        item.short_description,
+                        item.description
+                    );
 
                     const primaryCategoryForIcon = categoriesArray[0] || "all";
 
@@ -110,8 +93,8 @@ export const useProducts = () => {
                         id: item.id,
                         name: item.name,
                         category: categoriesArray,
-                        description: cardDesc,
-                        fullDescription: finalDescription || "Sin descripción detallada disponible.",
+                        description: cardDescription,
+                        fullDescription: fullDescription || "Sin descripción detallada disponible.",
                         composition: composition,
                         application: application,
                         image: item.images && item.images.length > 0 ? item.images[0].src : undefined,

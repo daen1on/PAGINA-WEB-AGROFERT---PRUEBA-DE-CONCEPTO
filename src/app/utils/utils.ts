@@ -108,3 +108,51 @@ export const parseWooCommerceDescription = (htmlDescription: string) => {
 
     return null;
 };
+
+export const buildProductDescriptions = (
+    shortDescription: string,
+    fullHtmlDescription: string
+) => {
+
+    const cleanShort = (shortDescription || "")
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .trim();
+
+    let fullDescription = cleanShort;
+    let application = "Consulte con nuestros asesores";
+    let composition = "Ver especificaciones técnicas";
+
+    const parsedData = parseWooCommerceDescription(fullHtmlDescription || "");
+
+    if (parsedData) {
+        fullDescription = parsedData.description;
+        application = parsedData.application;
+        composition = parsedData.composition;
+    } else {
+        const rawFull = fullHtmlDescription || shortDescription || "";
+
+        fullDescription = rawFull
+            .replace(/<[^>]*>/g, '')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .trim();
+    }
+
+    const cardDescription =
+        cleanShort ||
+        (
+            fullDescription.length > 120
+                ? fullDescription.substring(0, 117) + "..."
+                : fullDescription
+        ) ||
+        "Sin descripción disponible";
+
+    return {
+        cardDescription,
+        fullDescription,
+        application,
+        composition
+    };
+};

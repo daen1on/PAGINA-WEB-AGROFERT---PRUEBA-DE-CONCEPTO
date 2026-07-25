@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { EstrellaProduct } from "../interfaces/types/types";
 import { PRODUCTOS_ESTRELLA_STATIC } from "../utils/constants";
-import { parseWooCommerceDescription } from "../utils/utils";
+import { buildProductDescriptions } from "../utils/utils";
 
 export const useFeaturedProducts = () => {
     const [productos, setProductos] = useState<EstrellaProduct[]>([]);
@@ -40,29 +40,23 @@ export const useFeaturedProducts = () => {
                 }
 
                 const mappedData: EstrellaProduct[] = data.map((item: any) => {
-                    const parsed = parseWooCommerceDescription(item.description || '');
-                    let descLarga = "Sin descripción detallada disponible.";
-                    let application = "Consulte con nuestros asesores";
-                    let compositionArray = ["Ver especificaciones técnicas"];
+                    const {
+                        cardDescription,
+                        fullDescription,
+                        application,
+                        composition
+                    } = buildProductDescriptions(
+                        item.short_description,
+                        item.description
+                    );
 
-                    if (parsed) {
-                        descLarga = parsed.description || descLarga;
-                        application = parsed.application;
-                        compositionArray = parsed.composition ? parsed.composition.split(',').map((s: string) => s.trim()).filter(Boolean) : compositionArray;
-                    } else {
-                        descLarga = (item.description || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim() || descLarga;
-                        if (item.attributes?.length > 0) {
-                            const compAttr = item.attributes.find((attr: any) => attr.name.toLowerCase().includes("composic"));
-                            const appAttr = item.attributes.find((attr: any) => attr.name.toLowerCase().includes("aplicac"));
-                            if (compAttr?.options?.length > 0) compositionArray = compAttr.options.join(", ").split(",").map((s: string) => s.trim());
-                            if (appAttr?.options?.length > 0) application = appAttr.options.join(", ");
-                        }
-                    }
+                    const compositionArray =
+                        composition
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean);
 
-                    const rawBreve = (item.short_description || '').replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-                    const shortDesc = rawBreve
-                        ? (rawBreve.length > 120 ? rawBreve.substring(0, 117) + '...' : rawBreve)
-                        : (descLarga.length > 120 ? descLarga.substring(0, 117) + '...' : descLarga);
+
 
                     // =======================================================
                     // SOLUCIÓN: EXTRACTOR CON FILTRADO DE IMAGEN DUPLICADA
@@ -75,12 +69,12 @@ export const useFeaturedProducts = () => {
                     return {
                         id: item.id,
                         nombre: item.name,
-                        descBreve: shortDesc || "Sin descripción corta disponible.",
-                        descLarga,
+                        descBreve: cardDescription,
+                        descLarga: fullDescription,
                         aplicacion: application,
                         composicion: compositionArray,
                         img: item.images?.length > 0 ? item.images[0].src : undefined,
-                        imagenes: allUrlsArray // Galería secundaria libre de duplicados
+                        imagenes: allUrlsArray
                     };
                 });
 
