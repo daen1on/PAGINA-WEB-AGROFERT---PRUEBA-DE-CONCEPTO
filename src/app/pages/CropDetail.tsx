@@ -5,7 +5,7 @@ import {
   AlertCircle, FileSpreadsheet
 } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
-import { cropDetailsData } from "../../data/cropDetailsData";
+import { cropDetailsData } from "../../data/crops";
 import { useProducts } from "../hooks/useProducts";
 import { MappedProduct } from "../interfaces/types/types";
 import ProductModal from "../components/ProductModal";
@@ -48,18 +48,6 @@ export default function CropDetail() {
   // ==========================================================
   // RESOLUCIÓN DINÁMICA DE LA RUTA DE LA IMAGEN DEL PLAN
   // ==========================================================
-  const getPlanFertilizacionSrc = (): string => {
-    if (id === "fresa") {
-      return "/src/assets/PLAN FERTILIZACION AGROFERT_FRESA.png";
-    }
-    if (id === "tomate" || id === "pera") {
-      return "/src/assets/PLAN FERTILIZACION AGROFERT_TOMATE.png";
-    }
-    if (id === "papa") {
-      return "/src/assets/PLAN FERTILIZACION AGROFERT_PAPA.png";
-    }
-    return "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=1200&auto=format&fit=crop";
-  };
 
   const renderTextoConIcaDestacado = (texto: string) => {
     if (!texto) return null;
@@ -363,7 +351,7 @@ export default function CropDetail() {
               <div className="w-full bg-gray-50 border border-gray-200 rounded-2xl shadow-md relative p-4 flex items-center justify-center overflow-visible">
                 <div className="relative w-full max-w-3xl">
                   <img
-                    src={getPlanFertilizacionSrc()}
+                    src={cropData.planImage}
                     alt={`Plan de Fertilización para ${cropData.name}`}
                     className="w-full h-auto object-contain rounded-xl select-none"
                     onError={(e) => {

@@ -2,11 +2,17 @@ import { Link, useLocation } from "react-router";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import logo from '../../assets/logo-agrofert.svg';
+import { cropDetailsData } from "../../data/crops";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState(false);
   const location = useLocation();
+
+  const cropLinks = Object.values(cropDetailsData).map((crop) => ({
+    path: `/cultivos/${crop.slug}`,
+    label: crop.name,
+  }));
 
   const navLinks = [
     { path: "/", label: "Inicio" },
@@ -14,11 +20,7 @@ export function Navbar() {
     {
       path: "/cultivos",
       label: "Cultivos",
-      subItems: [
-        { path: "/cultivos/fresa", label: "Fresa" },
-        { path: "/cultivos/tomate", label: "Tomate" },
-        { path: "/cultivos/papa", label: "Papa" },
-      ]
+      subItems: cropLinks,
     },
     { path: "/distribuidores", label: "Distribuidores" },
     { path: "/nosotros", label: "Nosotros" },
