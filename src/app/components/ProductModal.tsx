@@ -35,9 +35,13 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
   
   // Convert composition to list if it's not already
   const rawComposition = product.composicion || product.composition || "";
-  const compositionList = Array.isArray(rawComposition) 
-    ? rawComposition 
-    : [rawComposition].filter(Boolean);
+
+  const compositionList = Array.isArray(rawComposition)
+    ? rawComposition
+    : rawComposition
+        .split(",")
+        .map(item => item.trim())
+        .filter(Boolean);
 
   const application = product.aplicacion || product.application || "";
   const rawDescription = product.descLarga || product.fullDescription || product.description || "";
