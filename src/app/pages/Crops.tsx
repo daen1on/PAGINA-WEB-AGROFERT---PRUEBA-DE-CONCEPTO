@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { CheckCircle } from "lucide-react";
 import { Link } from "react-router";
@@ -5,6 +6,26 @@ import { cropDetailsData } from "../../data/crops";
 
 export default function Crops() {
   const crops = Object.values(cropDetailsData);
+
+  const ITEMS_PER_LOAD = 4;
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_LOAD);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 500
+      ) {
+        setVisibleCount((prev) =>
+          Math.min(prev + ITEMS_PER_LOAD, crops.length)
+        );
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [crops.length]);
 
   return (
     <div className="py-16 bg-white">
@@ -14,21 +35,23 @@ export default function Crops() {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Soluciones por Cultivo
           </h1>
+
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Programas de fertilización específicos diseñados para cada tipo de cultivo
+            Programas de fertilización específicos diseñados para cada tipo de
+            cultivo
           </p>
         </div>
 
-        {/* Crops Grid */}
+        {/* Crops */}
         <div className="space-y-12">
-          {crops.map((crop, index) => (
+          {crops.slice(0, visibleCount).map((crop, index) => (
             <div
-              key={crop.id}
+              key={crop.slug}
               className={`flex flex-col ${
                 index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
               } gap-8 items-center bg-gray-50 rounded-xl overflow-hidden`}
             >
-              {/* Image */}
+              {/* Imagen */}
               <div className="w-full lg:w-1/2 h-80">
                 <ImageWithFallback
                   src={crop.heroImage}
@@ -37,7 +60,7 @@ export default function Crops() {
                 />
               </div>
 
-              {/* Content */}
+              {/* Contenido */}
               <div className="w-full lg:w-1/2 p-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                   {crop.name}
