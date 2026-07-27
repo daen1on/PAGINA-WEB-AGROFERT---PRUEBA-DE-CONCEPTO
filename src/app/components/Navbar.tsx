@@ -98,13 +98,13 @@ export function Navbar() {
 
                 {/* Desktop Dropdown */}
                 {link.subItems && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-100 shadow-xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left z-50 overflow-hidden">
-                    <div className="py-2">
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 min-w-[380px] bg-white border border-gray-100 shadow-xl rounded-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 origin-top z-50 overflow-hidden">
+                    <div className="grid grid-cols-2 gap-x-2 py-2">
                       {link.subItems.map((sub) => (
                         <Link
                           key={sub.path}
                           to={sub.path}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+                          className="px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors rounded-lg mx-2"
                         >
                           {sub.label}
                         </Link>
