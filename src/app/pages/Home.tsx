@@ -2,7 +2,6 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router";
 import { ArrowRight, Leaf, TrendingUp, Award, Users, ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
-import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import logo from '../../assets/logo-agrofert.svg';
 import { useFeaturedProducts } from "../hooks/useFeaturedProducts";
 import { EstrellaProduct } from "../interfaces/types/types";
@@ -15,52 +14,51 @@ export default function Home() {
   const [productoSeleccionado, setProductoSeleccionado] = useState<EstrellaProduct | null>(null);
   const carruselRef = useRef<HTMLDivElement>(null);
 
-  const renderTextoConIcaDestacado = ( texto: string, esModal = false, textoResumen?: string) => {
-      if (!texto) return null;
+  const renderTextoConIcaDestacado = (texto: string, esModal = false, textoResumen?: string) => {
+    if (!texto) return null;
 
-      const regexIca = /(REGISTRO DE VENTA ICA\s*(?:NO\.|N°|NUMERO)?\s*\d+)/i;
-      const coincidencia = texto.match(regexIca);
+    const regexIca = /(REGISTRO DE VENTA ICA\s*(?:NO\.|N°|NUMERO)?\s*\d+)/i;
+    const coincidencia = texto.match(regexIca);
 
-      if (coincidencia) {
-        const textoIca = coincidencia[1];
-
-        return (
-          <div className="space-y-2">
-            <div
-              className={`inline-block bg-green-100 text-green-800 font-semibold rounded-md px-2.5 py-1 text-xs uppercase tracking-wide border border-green-200 ${
-                esModal ? "mb-1" : ""
-              }`}
-            >
-              {textoIca}
-            </div>
-
-            <p
-              className={
-                esModal
-                  ? "text-gray-700 text-sm leading-relaxed"
-                  : "text-gray-500 text-sm line-clamp-2 leading-relaxed"
-              }
-            >
-              {esModal
-                ? texto.replace(textoIca, "").replace(/^[\s.,;:-]+/, "")
-                : (textoResumen ?? texto.replace(textoIca, "").replace(/^[\s.,;:-]+/, ""))}
-            </p>
-          </div>
-        );
-      }
+    if (coincidencia) {
+      const textoIca = coincidencia[1];
 
       return (
-        <p
-          className={
-            esModal
-              ? "text-gray-700 text-sm leading-relaxed"
-              : "text-gray-500 text-sm line-clamp-2 leading-relaxed"
-          }
-        >
-          {textoResumen ?? texto}
-        </p>
+        <div className="space-y-2">
+          <div
+            className={`inline-block bg-green-100 text-green-800 font-semibold rounded-md px-2.5 py-1 text-xs uppercase tracking-wide border border-green-200 ${esModal ? "mb-1" : ""
+              }`}
+          >
+            {textoIca}
+          </div>
+
+          <p
+            className={
+              esModal
+                ? "text-gray-700 text-sm leading-relaxed"
+                : "text-gray-500 text-sm line-clamp-2 leading-relaxed"
+            }
+          >
+            {esModal
+              ? texto.replace(textoIca, "").replace(/^[\s.,;:-]+/, "")
+              : (textoResumen ?? texto.replace(textoIca, "").replace(/^[\s.,;:-]+/, ""))}
+          </p>
+        </div>
       );
-    };
+    }
+
+    return (
+      <p
+        className={
+          esModal
+            ? "text-gray-700 text-sm leading-relaxed"
+            : "text-gray-500 text-sm line-clamp-2 leading-relaxed"
+        }
+      >
+        {textoResumen ?? texto}
+      </p>
+    );
+  };
 
   const moverCarrusel = (direccion: "izquierda" | "derecha") => {
     if (carruselRef.current) {
@@ -182,7 +180,7 @@ export default function Home() {
                     </div>
 
                     <div className="p-6 flex-1 flex flex-col justify-between bg-white">
-                      <div>                        
+                      <div>
                         <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1 group-hover:text-green-600 transition-colors">{producto.nombre}</h3>
                         {renderTextoConIcaDestacado(producto.descLarga, false, producto.descBreve)}
                       </div>

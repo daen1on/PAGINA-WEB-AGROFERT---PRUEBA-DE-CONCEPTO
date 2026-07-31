@@ -8,11 +8,7 @@ export default function AboutUs() {
       {/* Hero Section */}
       <section className="relative p-16 flex items-center justify-center bg-green-600 text-white mb-16">
         <div className="absolute inset-0 z-10"></div>
-        {/* <ImageWithFallback
-          src="https://images.unsplash.com/photo-1580982327559-c1202864eb05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYWJvcmF0b3J5JTIwYWdyaWN1bHR1cmUlMjBzY2llbnRpc3R8ZW58MXx8fHwxNzc1NjA1NjY2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-          alt="Laboratorio"
-          className="absolute inset-0 w-full h-full object-cover"
-        /> */}
+
         <div className="relative z-20 text-center px-4">
           <h1 className="text-4xl font-bold mb-4">Sobre Nosotros</h1>
           <p className="text-xl">Liderando la innovación en nutrición agrícola</p>
@@ -133,13 +129,13 @@ export default function AboutUs() {
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Nuestro equipo de expertos está listo para ayudarte a alcanzar tus objetivos de producción
           </p>
-          <a target="_blank" rel="noopener noreferrer" 
-                href={`https://wa.me/573202724352?text=${encodeURIComponent(
-                    `Hola, vengo de la página web y estoy interesado en hablar con un asesor".`
-                  )}`}
-                className="bg-white cursor-pointer text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
-                  Contáctanos Hoy
-                </a>
+          <a target="_blank" rel="noopener noreferrer"
+            href={`https://wa.me/573202724352?text=${encodeURIComponent(
+              `Hola, vengo de la página web y estoy interesado en hablar con un asesor".`
+            )}`}
+            className="bg-white cursor-pointer text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">
+            Contáctanos Hoy
+          </a>
         </section>
       </div>
     </div>
