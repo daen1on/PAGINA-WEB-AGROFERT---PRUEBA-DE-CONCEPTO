@@ -6,7 +6,7 @@ export const tomate: CropDetail = {
         id: 2,
         slug: "tomate",
     
-        name: "tomate",
+        name: "Tomate",
         heroImage: heroImg,
         planImage: planImg,
         cardDescription:
@@ -53,9 +53,87 @@ export const tomate: CropDetail = {
             desc: "Mejora el llenado, color, firmeza y calidad final del fruto."
         }
         ],
-                products: [
-        "Urea 46%",
-        "Nitrato de Calcio",
-        "Zinc Quelado"
-        ]    
-}
+        products: [
+          "Hidrostar",
+          "Creci Yan",
+          "fCuaje Yan",
+          "Nutrifos K",
+          "Calcio",
+          "Magnesio Agrofer",
+          "Bullterr K",
+          "Hidrafos 400",
+          "Nitro",
+          "Humika 150",
+          "NPK Agrofert",
+          "Starmin-k",
+          "Hidrón Producción",
+          "Humifos K",
+          "Aminox V",
+          "K-Thion"
+        ],
+        hotspots: [
+          // PLAN 1 (Fila Superior - Rosa) - Tooltips abajo
+          // Col 1: Establecimiento (Hidrostar)
+          { name: "Hidrostar", x: 14.5, y: 24.0, w: 7.5, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 2: Desarrollo vegetativo (Creci Yan)
+          { name: "Creci Yan", x: 29.0, y: 24.0, w: 7.5, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 3: Primera floración (fCuaje Yan)
+          { name: "fCuaje Yan", x: 42.5, y: 24.0, w: 8.5, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 4: Primer desarrollo de frutos (Nutrifos-k)
+          { name: "Nutrifos K", x: 57.0, y: 24.0, w: 8.5, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 5: Inicio de cosecha (Calcio + Magnesio)
+          { name: "Calcio", x: 71.5, y: 22.8, w: 8.0, h: 2.2, showDot: false, tooltipPosition: "bottom" },
+          { name: "Magnesio", x: 71.5, y: 25.4, w: 8.0, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 6: Cosecha (Bullterr-k + Calcio)
+          { name: "Bullterr K", x: 85.5, y: 22.8, w: 8.5, h: 2.2, showDot: false, tooltipPosition: "bottom" },
+          { name: "Calcio", x: 85.5, y: 25.4, w: 8.5, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // PLAN 2 (Fila Intermedia - Verde) - Tooltips abajo
+          // Col 1: Establecimiento (Hidrafos 400)
+          { name: "Hidrafos 400", x: 14.5, y: 34.0, w: 7.5, h: 5.2, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 2: Desarrollo vegetativo (Nitro + Humika 150)
+          { name: "Nitro", x: 28.0, y: 33.5, w: 9.0, h: 2.5, showDot: false, tooltipPosition: "bottom" },
+          { name: "Humika 150", x: 28.0, y: 36.5, w: 9.0, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 3: Primera floración (Magnesio + NPK Agrofert)
+          { name: "Magnesio", x: 41.5, y: 33.3, w: 10.5, h: 2.5, showDot: false, tooltipPosition: "bottom" },
+          { name: "NPK Agrofert", x: 41.5, y: 36.3, w: 10.5, h: 2.7, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 4: Primer desarrollo de frutos (Nutrifos-k)
+          { name: "Nutrifos K", x: 56.5, y: 34.8, w: 9.0, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 5: Inicio de cosecha (Starmin-k)
+          { name: "Starmin-k", x: 71.0, y: 34.8, w: 9.0, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 6: Cosecha (Hidrón producción + Calcio)
+          { name: "Hidrón Producción", x: 82.5, y: 33.5, w: 14.5, h: 2.8, showDot: false, tooltipPosition: "bottom" },
+          { name: "Calcio", x: 86.0, y: 36.8, w: 7.8, h: 2.5, showDot: false, tooltipPosition: "bottom" },
+
+          // PLAN 3 (Fila Inferior - Rojo) - Tooltips arriba
+          // Col 1: Establecimiento (Humifos-k)
+          { name: "Humifos K", x: 14.0, y: 44.8, w: 8.5, h: 2.6, showDot: false, tooltipPosition: "top" },
+
+          // Col 2: Desarrollo vegetativo (Nitro + Magnesio)
+          { name: "Nitro", x: 28.5, y: 44.0, w: 8.5, h: 2.5, showDot: false, tooltipPosition: "top" },
+          { name: "Magnesio", x: 28.5, y: 47.0, w: 8.5, h: 2.7, showDot: false, tooltipPosition: "top" },
+
+          // Col 3: Primera floración (Aminox v)
+          { name: "Aminox V", x: 42.5, y: 45.0, w: 8.0, h: 2.6, showDot: false, tooltipPosition: "top" },
+
+          // Col 4: Primer desarrollo de frutos (fCuaje Yan)
+          { name: "fCuaje Yan", x: 56.5, y: 45.2, w: 9.0, h: 2.6, showDot: false, tooltipPosition: "top" },
+
+          // Col 5: Inicio de cosecha (K-Thion + Magnesio)
+          { name: "K-Thion", x: 71.0, y: 44.0, w: 9.5, h: 2.5, showDot: false, tooltipPosition: "top" },
+          { name: "Magnesio", x: 71.0, y: 47.0, w: 9.5, h: 2.7, showDot: false, tooltipPosition: "top" },
+
+          // Col 6: Cosecha (Nutrifos-k)
+          { name: "Nutrifos K", x: 85.5, y: 43.8, w: 9.0, h: 2.6, showDot: false, tooltipPosition: "top" },
+        ]
+};

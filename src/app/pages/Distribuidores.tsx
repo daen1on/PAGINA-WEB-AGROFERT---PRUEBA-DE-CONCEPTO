@@ -82,10 +82,14 @@ export default function Contact() {
                 style={{ height: "100%", width: "100%" }}
                 zoomControl={true}
               >
-                {/* Mapa base minimalista (Diseño Light de CartoDB) */}
+                {/* 
+        OPCIÓN B: Mapa base de OpenStreetMap convertido a escala de grises con Tailwind CSS.
+        La clase 'grayscale' o 'saturate-0' le quita los colores vívidos automáticamente.
+      */}
                 <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+                  className="grayscale contrast-125 brightness-95" // Aplica el filtro estético aquí
                 />
 
                 {/* Capa que dibuja los polígonos usando tu GeoJSON real */}

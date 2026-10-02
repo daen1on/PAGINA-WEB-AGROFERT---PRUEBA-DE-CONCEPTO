@@ -54,9 +54,22 @@ export const cana: CropDetail = {
         }
         ],
         products: [
-        "NPK Agrofert",
-        "Nitro",
-        "K-thion"
+          "NPK Agrofert",
+          "Nitro",
+          "Magnesio Agrofer",
+          "K-Thion"
+        ],
+        hotspots: [
+          // PLAN (Fila única) - Tooltips arriba
+          // Col 1: Brotación (NPK Agrofert)
+          { name: "NPK Agrofert", x: 20.0, y: 31.8, w: 10.5, h: 3.2, showDot: false, tooltipPosition: "top" },
+
+          // Col 2: Macollamiento y Crecimiento (Nitro + Magnesio)
+          { name: "Nitro", x: 45.5, y: 31.8, w: 4.8, h: 3.2, showDot: false, tooltipPosition: "top" },
+          { name: "Magnesio", x: 51.0, y: 31.8, w: 7.5, h: 3.2, showDot: false, tooltipPosition: "top" },
+
+          // Col 3: Maduración (Kthion + Magnesio)
+          { name: "K-Thion", x: 72.0, y: 31.8, w: 5.8, h: 3.2, showDot: false, tooltipPosition: "top" },
+          { name: "Magnesio", x: 78.5, y: 31.8, w: 7.5, h: 3.2, showDot: false, tooltipPosition: "top" },
         ]
-  
-}
+};

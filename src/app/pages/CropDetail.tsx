@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { cropDetailsData } from "../../data/crops";
+import { PlanHotspot } from "../../data/crops/types";
 import { useProducts } from "../hooks/useProducts";
 import { MappedProduct } from "../interfaces/types/types";
 import ProductModal from "../components/ProductModal";
@@ -21,22 +22,11 @@ export default function CropDetail() {
   const keyBuscar = (id === "tomate" && !cropDetailsData["tomate" as keyof typeof cropDetailsData]) ? "pera" : id;
   const cropData = cropDetailsData[keyBuscar as keyof typeof cropDetailsData];
 
-  // Interceptar y setear dinámicamente los productos reales y nombres correctos según el cultivo
+  // Interceptar y setear dinámicamente nombres correctos si aplica
   useEffect(() => {
     if (cropData && id) {
-      if (id === "fresa") {
-        cropData.name = "Fresa";
-        cropData.products = [
-          "NPK Agrofert", "Hidrostar", "Humifos K", "Creci Yan",
-          "Nitro", "Magnesio Agrofer", "fCuaje Yan", "Starmin-k",
-          "Nutrifos K", "Bullterr K"
-        ];
-      } else if (id === "tomate" || id === "pera") {
+      if (id === "tomate" || id === "pera") {
         cropData.name = "Tomate";
-        cropData.products = ["Humifos k", "Aminox V", "Nutrifos K"];
-      } else if (id === "papa") {
-        cropData.name = "Papa";
-        cropData.products = ["Humifos k", "Nutrifos K", "Bullterr K"];
       }
     }
   }, [cropData, id]);
@@ -106,19 +96,29 @@ export default function CropDetail() {
       name: "Creci Yan",
       description: "Bioestimulante foliar diseñado para potenciar el desarrollo de brotes y follaje activo.",
       composition: "Nitrógeno soluble, aminoácidos de origen vegetal y estimulantes de división celular.",
-      application: "Foliar: 1 L por 200 L de agua, aplicar en fases de crecimiento rápido."
+      application: "Foliar: 1 L por 200 L de agua, aplicar en fases de crecimiento rápido.",
+      image: "/src/assets/nitro.png"
     },
     "fcuaje yan": {
       name: "fCuaje Yan",
       description: "Bioestimulante hormonal natural para maximizar el amarre de flores y desarrollo de primordios del fruto.",
       composition: "Boro 10%, Zinc 5%, Aminoácidos específicos y precursores hormonales.",
-      application: "Foliar: aplicar antes del inicio de floración y durante la caída de pétalos."
+      application: "Foliar: aplicar antes del inicio de floración y durante la caída de pétalos.",
+      image: "/src/assets/magnesio.png"
     },
     "starmin-k": {
       name: "Starmin-K",
       description: "Nutriente potásico de alta asimilación con microelementos para el llenado y pigmentación.",
       composition: "Potasio soluble (K2O) 30%, Boro y Zinc quelatados.",
-      application: "Foliar o fertirriego: aplicar en desarrollo y maduración del fruto."
+      application: "Foliar o fertirriego: aplicar en desarrollo y maduración del fruto.",
+      image: "/src/assets/bullterr.png"
+    },
+    "starmin k": {
+      name: "Starmin-K",
+      description: "Nutriente potásico de alta asimilación con microelementos para el llenado y pigmentación.",
+      composition: "Potasio soluble (K2O) 30%, Boro y Zinc quelatados.",
+      application: "Foliar o fertirriego: aplicar en desarrollo y maduración del fruto.",
+      image: "/src/assets/bullterr.png"
     },
     "nitro": {
       name: "Nitro",
@@ -175,64 +175,89 @@ export default function CropDetail() {
       composition: "Nitrógeno (N): 100 g/L, Fósforo (P2O5): 300 g/L, Potasio (K2O): 100 g/L, Calcio: 10 g/L",
       application: "Foliar o fertirriego en fases iniciales y desarrollo de brotes.",
       image: "/src/assets/npk.png"
+    },
+    "npk": {
+      name: "NPK Agrofert",
+      description: "Fertilizante complejo soluble con balance NPK y secundarios para vigor general.",
+      composition: "Nitrógeno (N): 100 g/L, Fósforo (P2O5): 300 g/L, Potasio (K2O): 100 g/L, Calcio: 10 g/L",
+      application: "Foliar o fertirriego en fases iniciales y desarrollo de brotes.",
+      image: "/src/assets/npk.png"
+    },
+    "calcio": {
+      name: "Calcio Agrofer",
+      description: "Aporte concentrado de calcio asimilable para prevenir desórdenes fisiológicos como pudrición apical y fortalecer paredes celulares.",
+      composition: "Calcio soluble (CaO) 15%, Boro (B) 1.5%",
+      application: "Foliar: 1 L/200 L de agua. Fertirriego: 2 a 3 L/ha durante etapas de cuajado y llenado.",
+      image: "/src/assets/magnesio.png"
+    },
+    "calcio agrofer": {
+      name: "Calcio Agrofer",
+      description: "Aporte concentrado de calcio asimilable para prevenir desórdenes fisiológicos como pudrición apical y fortalecer paredes celulares.",
+      composition: "Calcio soluble (CaO) 15%, Boro (B) 1.5%",
+      application: "Foliar: 1 L/200 L de agua. Fertirriego: 2 a 3 L/ha durante etapas de cuajado y llenado.",
+      image: "/src/assets/magnesio.png"
+    },
+    "hidrafos 400": {
+      name: "Hidrafos 400",
+      description: "Fuente fosfórica de máxima asimilación recomendada para etapas de alta demanda energética y enraizamiento.",
+      composition: "Fósforo Total (P2O5): 616 g/L (400 g/kg asimilable)",
+      application: "Foliar: 0.5 - 1.0 L/200 L de agua. Fertirriego en trasplante e inicio.",
+      image: "/src/assets/hidrafos.png"
+    },
+    "hidrafos": {
+      name: "Hidrafos 400",
+      description: "Fuente fosfórica de máxima asimilación recomendada para etapas de alta demanda energética y enraizamiento.",
+      composition: "Fósforo Total (P2O5): 616 g/L (400 g/kg asimilable)",
+      application: "Foliar: 0.5 - 1.0 L/200 L de agua. Fertirriego en trasplante e inicio.",
+      image: "/src/assets/hidrafos.png"
+    },
+    "humika 150": {
+      name: "Humika 150",
+      description: "Acondicionador de suelo y bioestimulante con extracto húmico de alta pureza para favorecer la absorción radicular.",
+      composition: "Ácidos Húmicos 15%, Ácidos Fúlvicos 5%, Potasio soluble 4%",
+      application: "Edáfica o fertirriego: 2 a 4 L/ha durante las fases vegetativas iniciales.",
+      image: "/src/assets/npk.png"
+    },
+    "humika": {
+      name: "Humika 150",
+      description: "Acondicionador de suelo y bioestimulante con extracto húmico de alta pureza para favorecer la absorción radicular.",
+      composition: "Ácidos Húmicos 15%, Ácidos Fúlvicos 5%, Potasio soluble 4%",
+      application: "Edáfica o fertirriego: 2 a 4 L/ha durante las fases vegetativas iniciales.",
+      image: "/src/assets/npk.png"
+    },
+    "hidron produccion": {
+      name: "Hidrón Producción",
+      description: "Bioactivador de maduración y llenado para incrementar peso específico, grados Brix y color del fruto.",
+      composition: "Potasio soluble (K2O) 35%, Fósforo soluble (P2O5) 10%, Nitrógeno 10% + micronutrientes",
+      application: "Foliar: 1-2 kg/200 L de agua durante engruese y maduración.",
+      image: "/src/assets/bullterr.png"
+    },
+    "hidrón producción": {
+      name: "Hidrón Producción",
+      description: "Bioactivador de maduración y llenado para incrementar peso específico, grados Brix y color del fruto.",
+      composition: "Potasio soluble (K2O) 35%, Fósforo soluble (P2O5) 10%, Nitrógeno 10% + micronutrientes",
+      application: "Foliar: 1-2 kg/200 L de agua durante engruese y maduración.",
+      image: "/src/assets/bullterr.png"
+    },
+    "k-thion": {
+      name: "K-Thion",
+      description: "Complejo nutricional rico en potasio y azufre elemental para máxima concentración de sólidos solubles y azúcares.",
+      composition: "Potasio soluble (K2O) 25%, Azufre asimilable (S) 15%",
+      application: "Foliar: 1 L/200 L de agua. Recomendado en pre-cosecha y maduración.",
+      image: "/src/assets/nutrifos.png"
+    },
+    "kthion": {
+      name: "K-Thion",
+      description: "Complejo nutricional rico en potasio y azufre elemental para máxima concentración de sólidos solubles y azúcares.",
+      composition: "Potasio soluble (K2O) 25%, Azufre asimilable (S) 15%",
+      application: "Foliar: 1 L/200 L de agua. Recomendado en pre-cosecha y maduración.",
+      image: "/src/assets/nutrifos.png"
     }
   };
 
-  const getHotspotsForCrop = (): { name: string; x: number; y: number; w: number; h: number; showDot?: boolean; tooltipPosition?: "top" | "bottom" }[] => {
-    if (id === "fresa") {
-      return [
-        // PLAN 1 (Fila Superior - Pink text) - Tooltips below
-        // Col 1: NPK Agrofert + Hidrostar
-        { name: "NPK Agrofert", x: 16, y: 28, w: 16, h: 5, showDot: false, tooltipPosition: "bottom" },
-        { name: "Hidrostar", x: 16, y: 33, w: 16, h: 5, showDot: false, tooltipPosition: "bottom" },
-
-        // Col 2: Humifos-k + Creci Yan
-        { name: "Humifos K", x: 33, y: 28, w: 16, h: 5, showDot: false, tooltipPosition: "bottom" },
-        { name: "Creci Yan", x: 33, y: 33, w: 16, h: 5, showDot: false, tooltipPosition: "bottom" },
-
-        // Col 3: fCuaje Yan + Magnesio
-        { name: "fCuaje Yan", x: 49, y: 28, w: 16, h: 5, showDot: false, tooltipPosition: "bottom" },
-        { name: "Magnesio", x: 49, y: 33, w: 16, h: 5, showDot: false, tooltipPosition: "bottom" },
-
-        // Col 4: Nutrifos-k + Starmin-k
-        { name: "Nutrifos K", x: 65, y: 28, w: 14, h: 5, showDot: false, tooltipPosition: "bottom" },
-        { name: "Starmin-k", x: 65, y: 33, w: 14, h: 5, showDot: false, tooltipPosition: "bottom" },
-
-        // Col 5: Bullterr-k
-        { name: "Bullterr K", x: 82, y: 30, w: 11, h: 7, showDot: false, tooltipPosition: "bottom" },
-
-        // PLAN 2 (Fila Inferior - Green text) - Tooltips above
-        // Col 1: Humifos-k
-        { name: "Humifos K", x: 16, y: 42, w: 16, h: 6, showDot: false, tooltipPosition: "top" },
-
-        // Col 2: Nitro + Magnesio
-        { name: "Nitro", x: 33, y: 38, w: 16, h: 4, showDot: false, tooltipPosition: "top" },
-        { name: "Magnesio", x: 33, y: 45.5, w: 16, h: 3, showDot: false, tooltipPosition: "top" },
-
-        // Col 3: Starmin-k
-        { name: "Starmin-k", x: 49, y: 42, w: 16, h: 6, showDot: false, tooltipPosition: "top" },
-
-        // Col 4: Nutrifos-k
-        { name: "Nutrifos K", x: 65, y: 42, w: 14, h: 6, showDot: false, tooltipPosition: "top" },
-
-        // Col 5: Bullterr-k
-        { name: "Bullterr K", x: 82, y: 42, w: 11, h: 6, showDot: false, tooltipPosition: "top" },
-      ];
-    }
-    if (id === "tomate" || id === "pera") {
-      return [
-        { name: "Humifos K", x: 8, y: 65, w: 17, h: 22, showDot: true, tooltipPosition: "top" },
-        { name: "Aminox V", x: 31.5, y: 65, w: 17, h: 22, showDot: true, tooltipPosition: "top" },
-        { name: "Nutrifos K", x: 55, y: 65, w: 17, h: 22, showDot: true, tooltipPosition: "top" },
-        { name: "NPK Agrofert", x: 78.5, y: 65, w: 17, h: 22, showDot: true, tooltipPosition: "top" },
-      ];
-    }
-    if (id === "papa") {
-      return [
-        { name: "Humifos K", x: 13, y: 65, w: 21, h: 22, showDot: true, tooltipPosition: "top" },
-        { name: "Nutrifos K", x: 44, y: 65, w: 21, h: 22, showDot: true, tooltipPosition: "top" },
-        { name: "Bullterr K", x: 75, y: 65, w: 21, h: 22, showDot: true, tooltipPosition: "top" },
-      ];
+  const getHotspotsForCrop = (): PlanHotspot[] => {
+    if (cropData.hotspots && cropData.hotspots.length > 0) {
+      return cropData.hotspots;
     }
     return [];
   };
@@ -251,12 +276,19 @@ export default function CropDetail() {
     return found;
   };
 
+  const getFallbackDetails = (name: string) => {
+    if (!name) return undefined;
+    const rawKey = name.toLowerCase().trim();
+    const cleanKey = rawKey.replace(/[-_]/g, " ");
+    return FALLBACK_PRODUCTS_DETAILS[rawKey] || FALLBACK_PRODUCTS_DETAILS[cleanKey];
+  };
+
   const handleHotspotClick = (productName: string) => {
     const foundProduct = findProductFuzzy(productName);
     if (foundProduct) {
       setProductoSeleccionado(foundProduct);
     } else {
-      const fallbackDetails = FALLBACK_PRODUCTS_DETAILS[productName.toLowerCase()];
+      const fallbackDetails = getFallbackDetails(productName);
       if (fallbackDetails) {
         setProductoSeleccionado({
           id: 999,
@@ -362,9 +394,10 @@ export default function CropDetail() {
                   {/* Capa de Hotspots Absolutos */}
                   {hotspots.map((hotspot, idx) => {
                     const matchedProd = findProductFuzzy(hotspot.name);
-                    const prodName = matchedProd?.name || FALLBACK_PRODUCTS_DETAILS[hotspot.name.toLowerCase()]?.name || hotspot.name;
-                    const prodDesc = matchedProd?.description || FALLBACK_PRODUCTS_DETAILS[hotspot.name.toLowerCase()]?.description || "Suplemento nutricional balanceado de alta asimilación.";
-                    const prodImg = matchedProd?.image || FALLBACK_PRODUCTS_DETAILS[hotspot.name.toLowerCase()]?.image || "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=200&auto=format&fit=crop";
+                    const fallback = getFallbackDetails(hotspot.name);
+                    const prodName = matchedProd?.name || fallback?.name || hotspot.name;
+                    const prodDesc = matchedProd?.description || fallback?.description || "Suplemento nutricional balanceado de alta asimilación.";
+                    const prodImg = matchedProd?.image || fallback?.image || "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=200&auto=format&fit=crop";
 
                     const isTooltipBottom = hotspot.tooltipPosition === "bottom";
                     const tooltipClasses = isTooltipBottom

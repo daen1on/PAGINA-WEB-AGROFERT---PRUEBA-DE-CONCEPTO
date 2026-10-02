@@ -15,6 +15,16 @@ export interface CropStats {
   suelo: string;
 }
 
+export interface PlanHotspot {
+  name: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  showDot?: boolean;
+  tooltipPosition?: "top" | "bottom";
+}
+
 export interface CropDetail {
   id: number;
   slug: string;
@@ -24,6 +34,7 @@ export interface CropDetail {
   planImage: string;
 
   cardDescription: string;
+  heroText?: string;
   featuredNutrients: string[];
 
   stats: CropStats;
@@ -35,4 +46,5 @@ export interface CropDetail {
   nutrition: CropNutrition[];
 
   products: string[];
+  hotspots?: PlanHotspot[];
 }

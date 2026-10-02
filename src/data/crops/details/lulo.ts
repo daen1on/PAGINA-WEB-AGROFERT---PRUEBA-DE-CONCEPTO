@@ -53,10 +53,57 @@ export const lulo: CropDetail = {
         }
         ],
         products: [
-        "Hidrafos 400",
-        "NPK Agrofert",
-        "fcuaje Yan",
-        "Nutrifos-k",
+          "Humifos K",
+          "Creci Yan",
+          "Magnesio Agrofer",
+          "fCuaje Yan",
+          "Nutrifos K",
+          "Bullterr K",
+          "Calcio",
+          "Hidrafos 400",
+          "NPK Agrofert",
+          "Aminox V",
+          "Starmin-k",
+          "Hidrón Producción"
+        ],
+        hotspots: [
+          // PLAN 1 (Fila Superior - Rosa) - Tooltips abajo
+          // Col 1: Trasplante (Humifos-k)
+          { name: "Humifos K", x: 16.5, y: 31.0, w: 9.0, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 2: Desarrollo Vegetativo (Creci Yan + Magnesio)
+          { name: "Creci Yan", x: 32.5, y: 29.8, w: 9.0, h: 2.5, showDot: false, tooltipPosition: "bottom" },
+          { name: "Magnesio", x: 32.5, y: 32.7, w: 9.0, h: 2.7, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 3: Floración (fCuaje Yan + Magnesio)
+          { name: "fCuaje Yan", x: 48.5, y: 29.8, w: 9.5, h: 2.5, showDot: false, tooltipPosition: "bottom" },
+          { name: "Magnesio", x: 48.5, y: 32.7, w: 9.5, h: 2.7, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 4: Desarrollo de fruto (Nutrifos-k)
+          { name: "Nutrifos K", x: 65.5, y: 31.0, w: 8.5, h: 2.6, showDot: false, tooltipPosition: "bottom" },
+
+          // Col 5: Engruese (Bullterr-k + Calcio)
+          { name: "Bullterr K", x: 82.0, y: 29.8, w: 8.5, h: 2.5, showDot: false, tooltipPosition: "bottom" },
+          { name: "Calcio", x: 82.0, y: 32.7, w: 8.5, h: 2.7, showDot: false, tooltipPosition: "bottom" },
+
+          // PLAN 2 (Fila Inferior - Verde) - Tooltips arriba
+          // Col 1: Trasplante (Hidrafos 400)
+          { name: "Hidrafos 400", x: 16.0, y: 41.8, w: 10.5, h: 2.6, showDot: false, tooltipPosition: "top" },
+
+          // Col 2: Desarrollo Vegetativo (NPK + Magnesio)
+          { name: "NPK Agrofert", x: 33.5, y: 40.5, w: 8.0, h: 2.5, showDot: false, tooltipPosition: "top" },
+          { name: "Magnesio", x: 33.5, y: 43.5, w: 8.0, h: 2.7, showDot: false, tooltipPosition: "top" },
+
+          // Col 3: Floración (fCuaje Yan + Aminox V)
+          { name: "fCuaje Yan", x: 48.5, y: 40.5, w: 9.5, h: 2.5, showDot: false, tooltipPosition: "top" },
+          { name: "Aminox V", x: 48.5, y: 43.5, w: 9.5, h: 2.7, showDot: false, tooltipPosition: "top" },
+
+          // Col 4: Desarrollo de fruto (Nutrifos-k + Starmin-k)
+          { name: "Nutrifos K", x: 65.0, y: 40.5, w: 9.5, h: 2.5, showDot: false, tooltipPosition: "top" },
+          { name: "Starmin-k", x: 65.0, y: 43.5, w: 9.5, h: 2.7, showDot: false, tooltipPosition: "top" },
+
+          // Col 5: Engruese (Hidrón producción + Calcio)
+          { name: "Hidrón Producción", x: 79.0, y: 40.2, w: 14.0, h: 3.0, showDot: false, tooltipPosition: "top" },
+          { name: "Calcio", x: 82.5, y: 43.5, w: 7.5, h: 2.6, showDot: false, tooltipPosition: "top" },
         ]
-    
-}   
+};   
