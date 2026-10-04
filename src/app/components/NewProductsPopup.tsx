@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { X } from "lucide-react";
 import { useProducts } from "../hooks/useProducts";
@@ -9,9 +9,10 @@ export default function NewProductsPopup() {
 
     const [isOpen, setIsOpen] = useState(false);
     const [productosNuevos, setProductosNuevos] = useState<typeof productos>([]);
+    const popupMostrado = useRef(false);
 
     useEffect(() => {
-        if (loading) return;
+        if (loading || popupMostrado.current) return;
 
         const nuevosProductos = productos.filter((producto) =>
             producto.tags?.some(
@@ -25,6 +26,7 @@ export default function NewProductsPopup() {
 
         setProductosNuevos(productosAMostrar);
         setIsOpen(true);
+        popupMostrado.current = true;
     }, [loading, productos]);
 
     if (!isOpen || productosNuevos.length === 0) {
