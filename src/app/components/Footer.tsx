@@ -81,7 +81,7 @@ export function Footer() {
                 <div className="bg-gray-800 p-2 rounded-lg group-hover:bg-green-600 transition-colors">
                   <Mail className="w-3.5 h-3.5 text-green-500 group-hover:text-white" />
                 </div>
-                <span>info@agrofert.com</span>
+                <span>info@agrofert.com.co</span>
               </li>
               <li className="flex items-start gap-3 group">
                 <div className="bg-gray-800 p-2 rounded-lg group-hover:bg-green-600 transition-colors">
