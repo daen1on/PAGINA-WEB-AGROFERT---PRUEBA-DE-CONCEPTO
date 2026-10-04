@@ -17,7 +17,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, Component: Home },
       { path: "productos", Component: Products },
-      { path: "producto/:id", Component: ProductDetail }, // <-- 2. Nueva ruta dinámica
+      { path: "producto/:id", Component: ProductDetail },
       { path: "cultivos", Component: Crops },
       { path: "cultivos/:id", Component: CropDetail },
       { path: "nosotros", Component: AboutUs },
@@ -27,3 +27,4 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+

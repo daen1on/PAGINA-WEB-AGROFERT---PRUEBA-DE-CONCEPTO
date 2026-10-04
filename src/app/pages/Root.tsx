@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
+import NewProductsPopup from "../components/NewProductsPopup";
 import { WhatsAppButton } from "../components/WhatsAppButton";
 import { ScrollToTop } from "../components/ScrollToTop";
 
@@ -17,6 +18,8 @@ export default function Root() {
 
       <Footer />
       <WhatsAppButton />
+
+      <NewProductsPopup />
     </div>
   );
 }
