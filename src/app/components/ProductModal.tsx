@@ -123,6 +123,25 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
 
         {/* COLUMNA IZQUIERDA: Imagenes con Zoom Dinámico */}
         <div className="w-full md:w-1/2 bg-gray-50 relative flex items-center justify-center p-4 md:p-8 h-80 md:h-full border-b md:border-b-0 md:border-r border-gray-100 group/modal">
+
+        {product.tags?.some(
+          (tag) => tag.name.toLowerCase() === "nuevo"
+        ) && (
+          <div className="absolute top-10 left-10 z-30">
+            <span
+              className="inline-flex items-center justify-center bg-green-600 text-white text-[11px] font-extrabold uppercase tracking-wider shadow-lg"
+              style={{
+                width: "80px",
+                height: "80px",
+                clipPath:
+                  "polygon(50% 0%, 58% 8%, 67% 3%, 73% 12%, 83% 9%, 87% 20%, 97% 23%, 94% 34%, 100% 42%, 92% 50%, 100% 58%, 94% 66%, 97% 77%, 87% 80%, 83% 91%, 73% 88%, 67% 97%, 58% 92%, 50% 100%, 42% 92%, 33% 97%, 27% 88%, 17% 91%, 13% 80%, 3% 77%, 6% 66%, 0% 58%, 8% 50%, 0% 42%, 6% 34%, 3% 23%, 13% 20%, 17% 9%, 27% 12%, 33% 3%, 42% 8%)",
+              }}
+            >
+              Nuevo
+            </span>
+          </div>
+        )}
+        
           {galeriaImagenes.length > 0 ? (
             <div className="w-full h-full flex items-center justify-center relative">
               <ZoomableImage
