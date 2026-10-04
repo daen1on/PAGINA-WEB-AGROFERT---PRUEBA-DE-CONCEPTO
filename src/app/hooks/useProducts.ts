@@ -17,7 +17,7 @@ export const useProducts = () => {
         const isDev = import.meta.env.DEV || import.meta.env.VITE_ENV === 'development';
         const baseUrl = isDev ? '' : 'https://www.agrofert.com.co';
 
-        const url = `${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&per_page=100&_fields=id,name,description,short_description,images,categories,attributes`;
+        const url = `${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&per_page=100&_fields=id,name,description,short_description,images,categories,tags,attributes`;
 
         const maskedUrl = `${isDev ? '[LOCAL PROXY]' : 'https://www.agrofert.com.co'}/wp-json/wc/v3/products?consumer_key=ck_7752...1c2a&consumer_secret=cs_bbe4...2477&per_page=100`;
 
@@ -109,6 +109,7 @@ export const useProducts = () => {
                         application: application,
                         image: item.images && item.images.length > 0 ? item.images[0].src : undefined,
                         images: allImagesMapped, // Galería limpia sin la foto de portada repetida
+                        tags: item.tags || [],
                         icon: getIconForCategory(primaryCategoryForIcon),
                     };
                 });

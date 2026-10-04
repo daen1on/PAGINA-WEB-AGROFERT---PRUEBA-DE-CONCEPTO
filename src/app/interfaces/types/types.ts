@@ -1,4 +1,10 @@
 // app/interfaces/types/types.ts
+
+export interface WCTag {
+    id: number;
+    name: string;
+    slug: string;
+}
 export interface WCProduct {
     id: number;
     name: string;
@@ -6,6 +12,7 @@ export interface WCProduct {
     short_description: string;
     images: { src: string }[];
     categories: { id: number; name: string; slug: string }[];
+    tags: WCTag[];
     attributes: { name: string; options: string[] }[];
 }
 
@@ -18,7 +25,8 @@ export interface MappedProduct {
     composition: string;
     application: string;
     image?: string;
-    images?: string[]; // <-- NUEVO: Para el carrusel del modal
+    images?: string[];
+    tags?: WCTag[];
     icon: React.ComponentType<any>;
 }
 
@@ -42,5 +50,6 @@ export interface EstrellaProduct {
     aplicacion: string;
     composicion: string[];
     img?: string;
-    imagenes?: string[]; // <-- NUEVO: Para el carrusel del modal en Home
+    imagenes?: string[];
+    tags?: WCTag[];
 }

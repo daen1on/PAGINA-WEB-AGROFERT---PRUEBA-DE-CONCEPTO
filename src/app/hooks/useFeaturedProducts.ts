@@ -16,7 +16,7 @@ export const useFeaturedProducts = () => {
         const isDev = import.meta.env.DEV || import.meta.env.VITE_ENV === 'development';
         const baseUrl = isDev ? '' : 'https://www.agrofert.com.co';
 
-        const url = `${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&include=23376,23351,23394,23377,23332,23406,23419&_fields=id,name,description,short_description,images,attributes`;
+        const url = `${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&include=23376,23351,23394,23377,23332,23406,23419&_fields=id,name,description,short_description,images,tags,attributes`;
 
         console.group("%c[Home Featured Products Fetch]", "color: #2563eb; font-weight: bold;");
 
@@ -83,7 +83,8 @@ export const useFeaturedProducts = () => {
                         aplicacion: application,
                         composicion: compositionArray,
                         img: item.images?.length > 0 ? item.images[0].src : undefined,
-                        imagenes: allUrlsArray
+                        imagenes: allUrlsArray,
+                        tags: item.tags || []
                     };
                 });
 

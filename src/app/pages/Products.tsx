@@ -56,7 +56,24 @@ export default function Products() {
       product.description.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesCategory && matchesSearch;
-  });
+    })
+    .sort((a, b) => {
+      const aNuevo =
+        a.tags?.some(
+          (tag) => tag.name.toLowerCase().trim() === "nuevo"
+        ) ?? false;
+
+      const bNuevo =
+        b.tags?.some(
+          (tag) => tag.name.toLowerCase().trim() === "nuevo"
+        ) ?? false;
+
+      if (aNuevo && !bNuevo) return -1;
+      if (!aNuevo && bNuevo) return 1;
+
+      return 0;
+    });
+    
 
   return (
     <div className="py-16 bg-gray-50">
@@ -167,6 +184,26 @@ export default function Products() {
                   className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden border border-gray-100 cursor-pointer group"
                 >
                   <div className="w-full h-72 overflow-hidden bg-gray-50 relative p-2 flex items-center justify-center border-b border-gray-100">
+
+                    {product.tags?.some(
+                      (tag) => tag.name.toLowerCase().trim() === "nuevo"
+                    ) && (
+                      <div className="absolute top-5 left-5 z-10">
+                        <span
+                          className="inline-flex items-center justify-center bg-green-600 text-white text-[11px] font-extrabold uppercase tracking-wider shadow-lg"
+                          style={{
+                            width: "68px",
+                            height: "68px",
+                            clipPath:
+                              "polygon(50% 0%, 58% 8%, 67% 3%, 73% 12%, 83% 9%, 87% 20%, 97% 23%, 94% 34%, 100% 42%, 92% 50%, 100% 58%, 94% 66%, 97% 77%, 87% 80%, 83% 91%, 73% 88%, 67% 97%, 58% 92%, 50% 100%, 42% 92%, 33% 97%, 27% 88%, 17% 91%, 13% 80%, 3% 77%, 6% 66%, 0% 58%, 8% 50%, 0% 42%, 6% 34%, 3% 23%, 13% 20%, 17% 9%, 27% 12%, 33% 3%, 42% 8%)",
+                          }}
+                        >
+                          Nuevo
+                        </span>
+                      </div>
+                    )}
+
+                    
                     {product.image ? (
                       <img
                         src={product.image}
