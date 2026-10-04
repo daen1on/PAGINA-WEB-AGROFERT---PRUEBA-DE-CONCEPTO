@@ -39,7 +39,16 @@ export const useFeaturedProducts = () => {
                     throw new Error("No se encontraron productos estrella.");
                 }
 
-                const mappedData: EstrellaProduct[] = data.map((item: any) => {
+                // Filtramos los destacados que tengan la categoría/etiqueta "oculto"
+                const filteredData = data.filter((item: any) => {
+                    const hasHiddenCategory = item.categories?.some((cat: any) => 
+                        cat.slug.toLowerCase().includes("oculto") || 
+                        cat.name.toLowerCase().includes("oculto")
+                    );
+                    return !hasHiddenCategory;
+                });
+
+                const mappedData: EstrellaProduct[] = filteredData.map((item: any) => {
                     const {
                         cardDescription,
                         fullDescription,

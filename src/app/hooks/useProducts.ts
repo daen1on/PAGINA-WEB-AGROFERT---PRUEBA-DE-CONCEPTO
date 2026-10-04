@@ -48,7 +48,17 @@ export const useProducts = () => {
             .then((data: WCProduct[]) => {
                 if (!Array.isArray(data)) throw new Error("El formato de datos devuelto no es un arreglo válido.");
 
-                const mappedData: MappedProduct[] = data.map((item) => {
+                //Excluir productos que tengan la categoría o etiqueta "oculto"
+                const filteredData = data.filter((item) => {
+                    const hasHiddenCategory = item.categories?.some(cat => 
+                        cat.slug.toLowerCase().includes("oculto") || 
+                        cat.name.toLowerCase().includes("oculto")
+                    );
+                    // Si tiene la categoría oculto, se descarta (!hasHiddenCategory lo elimina)
+                    return !hasHiddenCategory;
+                });
+
+                const mappedData: MappedProduct[] = filteredData.map((item) => {
                     console.log(`Procesando producto ID ${item.id}: ${item.name}`);
 
                     let categoriesArray: string[] = [];
