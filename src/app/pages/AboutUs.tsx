@@ -130,7 +130,7 @@ export default function AboutUs() {
             Nuestro equipo de expertos está listo para ayudarte a alcanzar tus objetivos de producción
           </p>
           <a target="_blank" rel="noopener noreferrer"
-            href={`https://wa.me/573202724352?text=${encodeURIComponent(
+            href={`https://wa.me/573103406250?text=${encodeURIComponent(
               `Hola, vengo de la página web y estoy interesado en hablar con un asesor".`
             )}`}
             className="bg-white cursor-pointer text-green-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition-colors">

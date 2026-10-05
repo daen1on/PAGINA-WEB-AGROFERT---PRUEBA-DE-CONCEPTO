@@ -32,16 +32,16 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
 
   // Normalize product attributes
   const name = product.nombre || product.name || "";
-  
+
   // Convert composition to list if it's not already
   const rawComposition = product.composicion || product.composition || "";
 
   const compositionList = Array.isArray(rawComposition)
     ? rawComposition
     : rawComposition
-        .split(",")
-        .map(item => item.trim())
-        .filter(Boolean);
+      .split(",")
+      .map(item => item.trim())
+      .filter(Boolean);
 
   const application = product.aplicacion || product.application || "";
   const rawDescription = product.descLarga || product.fullDescription || product.description || "";
@@ -113,7 +113,7 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
       className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-200 cursor-pointer"
     >
       <div className="bg-white rounded-3xl max-w-5xl w-full relative flex flex-col md:flex-row overflow-hidden shadow-2xl max-h-[90vh] md:h-[650px] cursor-default animate-in fade-in zoom-in-95 duration-200">
-        
+
         <button
           onClick={onClose}
           className="absolute top-4 right-4 md:top-6 md:right-6 bg-gray-900/20 hover:bg-gray-900/40 md:bg-gray-100 p-2.5 rounded-full hover:scale-105 transition z-50 shadow-md cursor-pointer"
@@ -124,24 +124,24 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
         {/* COLUMNA IZQUIERDA: Imagenes con Zoom Dinámico */}
         <div className="w-full md:w-1/2 bg-gray-50 relative flex items-center justify-center p-4 md:p-8 h-80 md:h-full border-b md:border-b-0 md:border-r border-gray-100 group/modal">
 
-        {product.tags?.some(
-          (tag) => tag.name.toLowerCase() === "nuevo"
-        ) && (
-          <div className="absolute top-10 left-10 z-30">
-            <span
-              className="inline-flex items-center justify-center bg-green-600 text-white text-[11px] font-extrabold uppercase tracking-wider shadow-lg"
-              style={{
-                width: "80px",
-                height: "80px",
-                clipPath:
-                  "polygon(50% 0%, 58% 8%, 67% 3%, 73% 12%, 83% 9%, 87% 20%, 97% 23%, 94% 34%, 100% 42%, 92% 50%, 100% 58%, 94% 66%, 97% 77%, 87% 80%, 83% 91%, 73% 88%, 67% 97%, 58% 92%, 50% 100%, 42% 92%, 33% 97%, 27% 88%, 17% 91%, 13% 80%, 3% 77%, 6% 66%, 0% 58%, 8% 50%, 0% 42%, 6% 34%, 3% 23%, 13% 20%, 17% 9%, 27% 12%, 33% 3%, 42% 8%)",
-              }}
-            >
-              Nuevo
-            </span>
-          </div>
-        )}
-        
+          {product.tags?.some(
+            (tag) => tag.name.toLowerCase() === "nuevo"
+          ) && (
+              <div className="absolute top-10 left-10 z-30">
+                <span
+                  className="inline-flex items-center justify-center bg-green-600 text-white text-[11px] font-extrabold uppercase tracking-wider shadow-lg"
+                  style={{
+                    width: "80px",
+                    height: "80px",
+                    clipPath:
+                      "polygon(50% 0%, 58% 8%, 67% 3%, 73% 12%, 83% 9%, 87% 20%, 97% 23%, 94% 34%, 100% 42%, 92% 50%, 100% 58%, 94% 66%, 97% 77%, 87% 80%, 83% 91%, 73% 88%, 67% 97%, 58% 92%, 50% 100%, 42% 92%, 33% 97%, 27% 88%, 17% 91%, 13% 80%, 3% 77%, 6% 66%, 0% 58%, 8% 50%, 0% 42%, 6% 34%, 3% 23%, 13% 20%, 17% 9%, 27% 12%, 33% 3%, 42% 8%)",
+                  }}
+                >
+                  Nuevo
+                </span>
+              </div>
+            )}
+
           {galeriaImagenes.length > 0 ? (
             <div className="w-full h-full flex items-center justify-center relative">
               <ZoomableImage
@@ -182,7 +182,7 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
 
         {/* COLUMNA DERECHA: REESTRUCTURADA CON SCROLL INDEPENDIENTE Y FOOTER FIJO */}
         <div className="w-full md:w-1/2 flex flex-col h-[calc(90vh-320px)] md:h-full">
-          
+
           {/* Contenedor escroleable de la información */}
           <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 pb-28 scroll-smooth animate-in fade-in duration-200">
             <div>
@@ -227,7 +227,7 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
 
           {/* SECCIÓN DE BOTONES FIJOS (Grid de 3 Botones / Sticky Footer) */}
           <div className="flex flex-col gap-3 pt-6 border-t border-gray-100 bg-white sticky bottom-0 z-10 p-6 md:p-8">
-            
+
             {/* Fila superior: Enlace a ProductDetails y Distribuidores */}
             <div className="flex flex-row gap-3">
               <Link
@@ -249,7 +249,7 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
 
             {/* Fila inferior: Botón completo para WhatsApp */}
             <a
-              href={`https://wa.me/573202724352?text=Hola,%20vengo%20de%20la%20página%20web%20y%20estoy%20interesado%20en%20el%20producto%20*${name}*.`}
+              href={`https://wa.me/573103406250?text=Hola,%20vengo%20de%20la%20página%20web%20y%20estoy%20interesado%20en%20el%20producto%20*${name}*.`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-[#25D366] text-white hover:bg-[#128C7E] px-5 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition shadow-lg text-sm cursor-pointer"

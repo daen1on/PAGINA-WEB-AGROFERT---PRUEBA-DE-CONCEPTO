@@ -147,23 +147,23 @@ export default function ProductDetail() {
                     {/* COLUMNA IZQUIERDA: GALERÍA DE IMÁGENES — STICKY */}
                     <div className="w-full lg:w-1/2 bg-gray-50/50 relative border-b lg:border-b-0 lg:border-r border-gray-100 p-6 md:p-10 min-h-[360px] lg:min-h-0 lg:max-h-[calc(100vh-6rem)] flex items-center justify-center group overflow-hidden rounded-t-3xl lg:rounded-l-3xl lg:rounded-tr-none self-start lg:sticky lg:top-4">
 
-                    {productoSeleccionado.tags?.some(
-                        (tag) => tag.name.toLowerCase().trim() === "nuevo"
-                    ) && (
-                        <div className="absolute top-11 left-11 z-30">
-                            <span
-                                className="inline-flex items-center justify-center bg-green-600 text-white text-s font-extrabold uppercase tracking-wider shadow-lg"
-                                style={{
-                                    width: "80px",
-                                    height: "80px",
-                                    clipPath:
-                                        "polygon(50% 0%, 58% 8%, 67% 3%, 73% 12%, 83% 9%, 87% 20%, 97% 23%, 94% 34%, 100% 42%, 92% 50%, 100% 58%, 94% 66%, 97% 77%, 87% 80%, 83% 91%, 73% 88%, 67% 97%, 58% 92%, 50% 100%, 42% 92%, 33% 97%, 27% 88%, 17% 91%, 13% 80%, 3% 77%, 6% 66%, 0% 58%, 8% 50%, 0% 42%, 6% 34%, 3% 23%, 13% 20%, 17% 9%, 27% 12%, 33% 3%, 42% 8%)",
-                                }}
-                            >
-                                Nuevo
-                            </span>
-                        </div>
-                    )}
+                        {productoSeleccionado.tags?.some(
+                            (tag) => tag.name.toLowerCase().trim() === "nuevo"
+                        ) && (
+                                <div className="absolute top-11 left-11 z-30">
+                                    <span
+                                        className="inline-flex items-center justify-center bg-green-600 text-white text-s font-extrabold uppercase tracking-wider shadow-lg"
+                                        style={{
+                                            width: "80px",
+                                            height: "80px",
+                                            clipPath:
+                                                "polygon(50% 0%, 58% 8%, 67% 3%, 73% 12%, 83% 9%, 87% 20%, 97% 23%, 94% 34%, 100% 42%, 92% 50%, 100% 58%, 94% 66%, 97% 77%, 87% 80%, 83% 91%, 73% 88%, 67% 97%, 58% 92%, 50% 100%, 42% 92%, 33% 97%, 27% 88%, 17% 91%, 13% 80%, 3% 77%, 6% 66%, 0% 58%, 8% 50%, 0% 42%, 6% 34%, 3% 23%, 13% 20%, 17% 9%, 27% 12%, 33% 3%, 42% 8%)",
+                                        }}
+                                    >
+                                        Nuevo
+                                    </span>
+                                </div>
+                            )}
 
                         {galeriaImagenes.length > 0 ? (
                             <div className="w-full h-full flex items-center justify-center relative">
@@ -281,7 +281,7 @@ export default function ProductDetail() {
                         {/* BOTONES DE ACCIÓN */}
                         <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
                             <a
-                                href={`https://wa.me/573202724352?text=Hola,%20estoy%20interesado%20en%20el%20producto%20*${nombreProducto}*%20que%20vi%20en%20su%20sitio%20web.`}
+                                href={`https://wa.me/573103406250?text=Hola,%20estoy%20interesado%20en%20el%20producto%20*${nombreProducto}*%20que%20vi%20en%20su%20sitio%20web.`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="bg-[#25D366] text-white hover:bg-[#128C7E] px-6 py-4 rounded-xl font-bold flex-1 text-center transition shadow-lg hover:shadow-xl flex items-center justify-center gap-3 text-base cursor-pointer"

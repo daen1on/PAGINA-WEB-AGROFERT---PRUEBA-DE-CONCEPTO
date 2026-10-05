@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Mail, Phone, MapPin, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Instagram, } from "lucide-react";
 import logo from '../../assets/logo-agrofert.svg';
 
 export function Footer() {
@@ -29,7 +29,7 @@ export function Footer() {
               src={logo}
               alt="Logo Agrofert"
               className="h-28 w-auto drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)]"
-            />            
+            />
           </div>
 
           {/* Enlaces Rápidos (Mantenemos animación) */}
@@ -75,7 +75,7 @@ export function Footer() {
                 <div className="bg-gray-800 p-2 rounded-lg group-hover:bg-green-600 transition-colors">
                   <Phone className="w-3.5 h-3.5 text-green-500 group-hover:text-white" />
                 </div>
-                <span>+57 320 272 4352</span>
+                <span>+57 310 340 6250</span>
               </li>
               <li className="flex items-center gap-3 group">
                 <div className="bg-gray-800 p-2 rounded-lg group-hover:bg-green-600 transition-colors">
