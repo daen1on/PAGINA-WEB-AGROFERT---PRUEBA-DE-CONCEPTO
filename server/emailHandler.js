@@ -3,28 +3,144 @@ import path from 'path';
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 
+// ============================================================================
+// SEGURIDAD: RATE LIMITER EN MEMORIA POR IP
+// ============================================================================
+const ipRateLimit = new Map();
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutos
+const MAX_REQUESTS_PER_WINDOW = 4; // Máximo 4 peticiones por IP cada 10 minutos
+
+// Limpieza periódica de IPs expiradas cada 15 minutos para no saturar memoria
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of ipRateLimit.entries()) {
+    if (now > entry.resetAt) {
+      ipRateLimit.delete(ip);
+    }
+  }
+}, 15 * 60 * 1000);
+
+/**
+ * Escapa caracteres HTML para evitar XSS o inyección de código en clientes de correo.
+ */
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Elimina saltos de línea (\r, \n) para prevenir Email Header Injection.
+ */
+function sanitizeHeader(str) {
+  if (!str) return '';
+  return String(str).replace(/[\r\n\t]/g, ' ').trim();
+}
+
 /**
  * Procesa y envía el correo electrónico del formulario de contacto usando SMTP.
- * @param {Object} reqBody - Datos recibidos del formulario { name, email, phone, subject, message }
+ * @param {Object} reqBody - Datos recibidos del formulario { name, email, phone, subject, message, empresa_website, _formStartTime }
  * @param {Object} passedEnv - Variables de entorno cargadas
+ * @param {Object} options - Metadatos de seguridad { clientIp, origin }
  * @returns {Promise<{ statusCode: number, data: Object }>}
  */
-export async function handleSendEmail(reqBody, passedEnv = {}) {
-  const { name, email, phone, subject, message } = reqBody || {};
+export async function handleSendEmail(reqBody, passedEnv = {}, options = {}) {
+  const {
+    name,
+    email,
+    phone,
+    subject,
+    message,
+    empresa_website, // Campo trampa Honeypot
+    _formStartTime,   // Marca de tiempo Time-trap
+  } = reqBody || {};
 
-  // Leer .env directamente con dotenv.parse para evitar que caracteres especiales como $ sean expandidos
-  let env = { ...passedEnv };
-  try {
-    const envPath = path.resolve(process.cwd(), '.env');
-    if (fs.existsSync(envPath)) {
-      const rawEnv = dotenv.parse(fs.readFileSync(envPath));
-      env = { ...env, ...rawEnv };
+  const clientIp = options.clientIp || '127.0.0.1';
+  const origin = options.origin || '';
+
+  // --------------------------------------------------------------------------
+  // 1. VERIFICACIÓN DE ORIGEN / CORS
+  // --------------------------------------------------------------------------
+  if (origin) {
+    const isAllowedOrigin =
+      origin.includes('agrofert.com.co') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1');
+
+    if (!isAllowedOrigin) {
+      console.warn(`[SEGURIDAD] Intento de envío bloqueado por Origen no autorizado: ${origin} (IP: ${clientIp})`);
+      return {
+        statusCode: 403,
+        data: { error: 'Acceso no autorizado desde este origen.' },
+      };
     }
-  } catch (e) {
-    // Si falla la lectura directa, continuar con passedEnv
   }
 
-  // Validaciones básicas de campos obligatorios
+  // --------------------------------------------------------------------------
+  // 2. TRAMPA HONEYPOT (Bots que rellenan campos ocultos)
+  // --------------------------------------------------------------------------
+  if (empresa_website && String(empresa_website).trim() !== '') {
+    console.warn(`[SEGURIDAD] Bot detectado mediante Honeypot desde IP ${clientIp}. Descartando mensaje silenciosamente.`);
+    // Simular éxito para no alertar al bot
+    return {
+      statusCode: 200,
+      data: {
+        success: true,
+        message: '¡Tu mensaje ha sido enviado correctamente! Nos pondremos en contacto pronto.',
+      },
+    };
+  }
+
+  // --------------------------------------------------------------------------
+  // 3. TRAMPA TEMPORAL (Time-Trap: Bots que envían en milisegundos)
+  // --------------------------------------------------------------------------
+  if (_formStartTime) {
+    const elapsedMs = Date.now() - Number(_formStartTime);
+    if (elapsedMs > 0 && elapsedMs < 2000) {
+      console.warn(`[SEGURIDAD] Envío demasiado rápido (${elapsedMs}ms) desde IP ${clientIp}. Descartando silenciosamente.`);
+      return {
+        statusCode: 200,
+        data: {
+          success: true,
+          message: '¡Tu mensaje ha sido enviado correctamente! Nos pondremos en contacto pronto.',
+        },
+      };
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // 4. RATE LIMITING POR IP (Máximo 4 envíos cada 10 minutos)
+  // --------------------------------------------------------------------------
+  const now = Date.now();
+  const rateData = ipRateLimit.get(clientIp);
+
+  if (rateData) {
+    if (now < rateData.resetAt) {
+      if (rateData.count >= MAX_REQUESTS_PER_WINDOW) {
+        console.warn(`[SEGURIDAD] Límite de tasa excedido para IP ${clientIp}.`);
+        return {
+          statusCode: 429,
+          data: {
+            error: 'Has enviado varios mensajes recientemente. Por seguridad, por favor espera 10 minutos antes de enviar otro.',
+          },
+        };
+      }
+      rateData.count += 1;
+    } else {
+      // Ventana expirada, reiniciar
+      ipRateLimit.set(clientIp, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    }
+  } else {
+    ipRateLimit.set(clientIp, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+  }
+
+  // --------------------------------------------------------------------------
+  // 5. VALIDACIÓN Y SANITIZACIÓN ESTRICTA
+  // --------------------------------------------------------------------------
   if (!name || !name.trim()) {
     return {
       statusCode: 400,
@@ -39,11 +155,12 @@ export async function handleSendEmail(reqBody, passedEnv = {}) {
     };
   }
 
+  const cleanEmail = sanitizeHeader(email);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.trim())) {
+  if (!emailRegex.test(cleanEmail) || cleanEmail.length > 150) {
     return {
       statusCode: 400,
-      data: { error: 'El formato del correo electrónico ingresado no es válido.' },
+      data: { error: 'El formato del correo electrónico ingresado no es válido o supera la longitud permitida.' },
     };
   }
 
@@ -54,7 +171,25 @@ export async function handleSendEmail(reqBody, passedEnv = {}) {
     };
   }
 
-  // Obtener configuración desde variables de entorno (con soporte para prefijos VITE_ o estándar)
+  // Límites de longitud para evitar desbordamiento y spam de payloads gigantes
+  const cleanName = sanitizeHeader(name).slice(0, 100);
+  const cleanPhone = sanitizeHeader(phone || '').slice(0, 30);
+  const cleanSubject = sanitizeHeader(subject || 'General').slice(0, 150);
+  const cleanMessage = String(message).trim().slice(0, 3000);
+
+  // Leer .env directamente con dotenv.parse para preservar contraseñas con caracteres como $
+  let env = { ...passedEnv };
+  try {
+    const envPath = path.resolve(process.cwd(), '.env');
+    if (fs.existsSync(envPath)) {
+      const rawEnv = dotenv.parse(fs.readFileSync(envPath));
+      env = { ...env, ...rawEnv };
+    }
+  } catch (e) {
+    // Continuar con passedEnv
+  }
+
+  // Configuración SMTP
   const host = env.SMTP_HOST || env.VITE_SMTP_HOST || process.env.SMTP_HOST || 'mail.agrofert.com.co';
   const port = parseInt(env.SMTP_PORT || env.VITE_SMTP_PORT || process.env.SMTP_PORT || '465', 10);
   const secureEnv = env.SMTP_SECURE || env.VITE_SMTP_SECURE || process.env.SMTP_SECURE;
@@ -64,7 +199,6 @@ export async function handleSendEmail(reqBody, passedEnv = {}) {
   const to = env.MAIL_TO || env.VITE_MAIL_TO || process.env.MAIL_TO || user;
   const fromName = env.MAIL_FROM_NAME || env.VITE_MAIL_FROM_NAME || process.env.MAIL_FROM_NAME || 'Agrofert Web';
 
-  // Si no se ha configurado la contraseña en .env
   if (!pass || pass.trim() === '') {
     return {
       statusCode: 500,
@@ -78,39 +212,38 @@ export async function handleSendEmail(reqBody, passedEnv = {}) {
     const transporter = nodemailer.createTransport({
       host,
       port,
-      secure, // true para puerto 465 (SSL), false para 587 (TLS/STARTTLS)
+      secure,
       auth: {
         user,
         pass,
       },
       tls: {
-        // Evita errores de certificados autofirmados o no coincidentes comunes en cPanel
         rejectUnauthorized: false,
       },
-      connectionTimeout: 10000, // 10 segundos
+      connectionTimeout: 10000,
     });
 
-    const subjectText = subject
-      ? `[Contacto Web] ${subject} - ${name.trim()}`
-      : `[Contacto Web] Mensaje de ${name.trim()}`;
+    const subjectText = `[Contacto Web] ${cleanSubject} - ${cleanName}`;
 
     const textContent = `
 Se ha recibido un nuevo mensaje desde el formulario de contacto de agrofert.com.co:
 
 --------------------------------------------------
-Nombre: ${name.trim()}
-Correo: ${email.trim()}
-Teléfono: ${phone ? phone.trim() : 'No especificado'}
-Asunto: ${subject ? subject.trim() : 'No especificado'}
+Nombre: ${cleanName}
+Correo: ${cleanEmail}
+Teléfono: ${cleanPhone || 'No especificado'}
+Asunto: ${cleanSubject}
+IP de origen: ${clientIp}
 --------------------------------------------------
 
 Mensaje:
-${message.trim()}
+${cleanMessage}
 
 --------------------------------------------------
-Puedes responder directamente a este correo para escribirle a ${email.trim()}.
+Puedes responder directamente a este correo para escribirle a ${cleanEmail}.
     `.trim();
 
+    // Se escapan todas las variables para prevenir inyección HTML
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">
@@ -134,33 +267,33 @@ Puedes responder directamente a este correo para escribirle a ${email.trim()}.
               <table width="100%" cellpadding="8" cellspacing="0" style="margin-bottom: 24px; font-size: 14px; border-collapse: collapse;">
                 <tr style="border-bottom: 1px solid #f3f4f6;">
                   <td style="font-weight: 600; color: #6b7280; width: 110px;">Nombre:</td>
-                  <td style="font-weight: 500; color: #111827;">${name.trim()}</td>
+                  <td style="font-weight: 500; color: #111827;">${escapeHtml(cleanName)}</td>
                 </tr>
                 <tr style="border-bottom: 1px solid #f3f4f6;">
                   <td style="font-weight: 600; color: #6b7280;">Email:</td>
                   <td>
-                    <a href="mailto:${email.trim()}" style="color: #16a34a; font-weight: 500; text-decoration: none;">
-                      ${email.trim()}
+                    <a href="mailto:${escapeHtml(cleanEmail)}" style="color: #16a34a; font-weight: 500; text-decoration: none;">
+                      ${escapeHtml(cleanEmail)}
                     </a>
                   </td>
                 </tr>
                 <tr style="border-bottom: 1px solid #f3f4f6;">
                   <td style="font-weight: 600; color: #6b7280;">Teléfono:</td>
-                  <td style="color: #111827;">${phone ? phone.trim() : '<span style="color: #9ca3af;">No especificado</span>'}</td>
+                  <td style="color: #111827;">${cleanPhone ? escapeHtml(cleanPhone) : '<span style="color: #9ca3af;">No especificado</span>'}</td>
                 </tr>
                 <tr>
                   <td style="font-weight: 600; color: #6b7280;">Asunto:</td>
-                  <td style="color: #111827;">${subject ? subject.trim() : '<span style="color: #9ca3af;">General</span>'}</td>
+                  <td style="color: #111827;">${escapeHtml(cleanSubject)}</td>
                 </tr>
               </table>
 
               <div style="background-color: #f8fafc; border-left: 4px solid #16a34a; border-radius: 4px; padding: 18px; margin-top: 10px;">
                 <h4 style="margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; color: #15803d;">Mensaje:</h4>
-                <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #334155; white-space: pre-wrap;">${message.trim()}</p>
+                <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #334155; white-space: pre-wrap;">${escapeHtml(cleanMessage)}</p>
               </div>
 
               <div style="margin-top: 24px; text-align: center;">
-                <a href="mailto:${email.trim()}" style="display: inline-block; background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 10px 22px; border-radius: 6px; font-weight: 600; font-size: 14px;">
+                <a href="mailto:${escapeHtml(cleanEmail)}" style="display: inline-block; background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 10px 22px; border-radius: 6px; font-weight: 600; font-size: 14px;">
                   Responder al remitente
                 </a>
               </div>
@@ -168,7 +301,7 @@ Puedes responder directamente a este correo para escribirle a ${email.trim()}.
           </tr>
           <tr>
             <td style="background-color: #f9fafb; padding: 16px 24px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;">
-              Enviado automáticamente desde <a href="https://agrofert.com.co" style="color: #16a34a; text-decoration: none;">agrofert.com.co</a>
+              Enviado automáticamente desde <a href="https://agrofert.com.co" style="color: #16a34a; text-decoration: none;">agrofert.com.co</a> &bull; IP: ${escapeHtml(clientIp)}
             </td>
           </tr>
         </table>
@@ -177,8 +310,8 @@ Puedes responder directamente a este correo para escribirle a ${email.trim()}.
     `;
 
     await transporter.sendMail({
-      from: `"${fromName}" <${user}>`,
-      replyTo: `"${name.trim()}" <${email.trim()}>`,
+      from: `"${sanitizeHeader(fromName)}" <${user}>`,
+      replyTo: `"${cleanName}" <${cleanEmail}>`,
       to,
       subject: subjectText,
       text: textContent,

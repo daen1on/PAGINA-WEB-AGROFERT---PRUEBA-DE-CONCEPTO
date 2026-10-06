@@ -54,7 +54,9 @@ const server = http.createServer(async (req, res) => {
     req.on('end', async () => {
       try {
         const data = JSON.parse(body || '{}');
-        const result = await handleSendEmail(data, process.env);
+        const clientIp = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
+        const origin = req.headers.origin || req.headers.referer || '';
+        const result = await handleSendEmail(data, process.env, { clientIp, origin });
         res.statusCode = result.statusCode;
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(result.data));

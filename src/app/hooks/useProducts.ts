@@ -11,18 +11,14 @@ export const useProducts = () => {
     const [apiDebugInfo, setApiDebugInfo] = useState<ApiDebugInfo | null>(null);
 
     useEffect(() => {
-        const customerKey = import.meta.env.VITE_WOOCOMMERCE_CUSTOMER_KEY || '';
-        const customerSecret = import.meta.env.VITE_WOOCOMMERCE_CUSTOMER_SECRET || '';
-
+        // En producción el frontend corre bajo el mismo dominio o consume el dominio oficial
         const isDev = import.meta.env.DEV || import.meta.env.VITE_ENV === 'development';
-        const baseUrl = isDev ? '' : 'https://www.agrofert.com.co';
 
-        const url = `${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&per_page=100&_fields=id,name,description,short_description,images,categories,tags,attributes`;
-
-        const maskedUrl = `${isDev ? '[LOCAL PROXY]' : 'https://www.agrofert.com.co'}/wp-json/wc/v3/products?consumer_key=ck_7752...1c2a&consumer_secret=cs_bbe4...2477&per_page=100`;
-
-        console.group("%c[WooCommerce API Connection Debug]", "color: #16a34a; font-weight: bold; font-size: 13px;");
-        console.log("Iniciando petición a la API de WooCommerce...");
+        // Si tienes proxy en vite.config.ts para dev usa '', sino usa el dominio de WordPress directo
+        const baseUrl = import.meta.env.DEV ? '' : 'https://www.agrofert.com.co';
+        const url = `${baseUrl}/wp-json/agrofert/v1/products?per_page=100`;
+        console.group("%c[Agrofert API Connection Debug]", "color: #16a34a; font-weight: bold; font-size: 13px;");
+        console.log(`Iniciando petición al endpoint público: ${url}`);
 
         fetch(url)
             .then((response) => {
@@ -37,7 +33,7 @@ export const useProducts = () => {
                         errorName: "HTTP Response Error",
                         errorMessage: `La petición falló con código de estado HTTP ${response.status}.`,
                         timestamp: new Date().toLocaleTimeString(),
-                        requestUrl: maskedUrl,
+                        requestUrl: url,
                         analyzedIssue,
                         detailedSolution: getDetailedSolutionText(analyzedIssue)
                     });
@@ -48,24 +44,21 @@ export const useProducts = () => {
             .then((data: WCProduct[]) => {
                 if (!Array.isArray(data)) throw new Error("El formato de datos devuelto no es un arreglo válido.");
 
-                //Excluir productos que tengan la categoría o etiqueta "oculto"
+                // Excluir productos que tengan la categoría o etiqueta "oculto"
                 const filteredData = data.filter((item) => {
-                    const hasHiddenCategory = item.categories?.some(cat => 
-                        cat.slug.toLowerCase().includes("oculto") || 
-                        cat.name.toLowerCase().includes("oculto")
+                    const hasHiddenCategory = item.categories?.some(cat =>
+                        cat.slug?.toLowerCase().includes("oculto") ||
+                        cat.name?.toLowerCase().includes("oculto")
                     );
-                    // Si tiene la categoría oculto, se descarta (!hasHiddenCategory lo elimina)
                     return !hasHiddenCategory;
                 });
 
                 const mappedData: MappedProduct[] = filteredData.map((item) => {
-                    console.log(`Procesando producto ID ${item.id}: ${item.name}`);
-
                     let categoriesArray: string[] = [];
 
                     if (item.categories && item.categories.length > 0) {
                         for (const cat of item.categories) {
-                            const firstCat = cat.slug.toLowerCase();
+                            const firstCat = cat.slug ? cat.slug.toLowerCase() : "";
 
                             if (firstCat.includes("itrogen")) categoriesArray.push("nitrogenados");
                             if (firstCat.includes("osfor")) categoriesArray.push("fosforados");
@@ -85,15 +78,12 @@ export const useProducts = () => {
                         application,
                         composition
                     } = buildProductDescriptions(
-                        item.short_description,
-                        item.description
+                        item.short_description || "",
+                        item.description || ""
                     );
 
                     const primaryCategoryForIcon = categoriesArray[0] || "all";
 
-                    // =======================================================
-                    // SOLUCIÓN: EXTRACTOR CON FILTRADO DE IMAGEN DUPLICADA
-                    // =======================================================
                     // Si hay más de una imagen, excluimos la primera (index 0) para que no se repita en la ficha técnica.
                     const allImagesMapped = item.images && item.images.length > 1
                         ? item.images.slice(1).map(img => ({ src: img.src }))
@@ -108,7 +98,7 @@ export const useProducts = () => {
                         composition: composition,
                         application: application,
                         image: item.images && item.images.length > 0 ? item.images[0].src : undefined,
-                        images: allImagesMapped, // Galería limpia sin la foto de portada repetida
+                        images: allImagesMapped,
                         tags: item.tags || [],
                         icon: getIconForCategory(primaryCategoryForIcon),
                     };
@@ -129,7 +119,7 @@ export const useProducts = () => {
                         errorName: error.name || "NetworkError",
                         errorMessage: error.message || "Problema de red o restricciones de CORS.",
                         timestamp: new Date().toLocaleTimeString(),
-                        requestUrl: maskedUrl,
+                        requestUrl: url,
                         analyzedIssue,
                         detailedSolution: getDetailedSolutionText(analyzedIssue),
                         rawErrorStack: error.stack

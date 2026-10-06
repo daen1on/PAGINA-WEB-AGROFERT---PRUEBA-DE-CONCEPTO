@@ -19,7 +19,9 @@ export default defineConfig(({ mode }) => {
           req.on('end', async () => {
             try {
               const data = JSON.parse(body || '{}')
-              const result = await handleSendEmail(data, env)
+              const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket?.remoteAddress || '127.0.0.1'
+              const origin = (req.headers['origin'] || req.headers['referer'] || '') as string
+              const result = await handleSendEmail(data, env, { clientIp, origin })
               res.statusCode = result.statusCode
               res.setHeader('Content-Type', 'application/json')
               res.end(JSON.stringify(result.data))
@@ -44,7 +46,9 @@ export default defineConfig(({ mode }) => {
           req.on('end', async () => {
             try {
               const data = JSON.parse(body || '{}')
-              const result = await handleSendEmail(data, env)
+              const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket?.remoteAddress || '127.0.0.1'
+              const origin = (req.headers['origin'] || req.headers['referer'] || '') as string
+              const result = await handleSendEmail(data, env, { clientIp, origin })
               res.statusCode = result.statusCode
               res.setHeader('Content-Type', 'application/json')
               res.end(JSON.stringify(result.data))

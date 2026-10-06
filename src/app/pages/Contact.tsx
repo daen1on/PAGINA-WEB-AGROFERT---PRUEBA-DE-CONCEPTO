@@ -1,5 +1,5 @@
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -8,8 +8,10 @@ export default function Contact() {
     phone: "",
     subject: "",
     message: "",
+    empresa_website: "", // Campo Honeypot para capturar bots de spam
   });
 
+  const formStartTime = useRef(Date.now());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState("");
@@ -20,13 +22,18 @@ export default function Contact() {
     setStatus("idle");
     setStatusMessage("");
 
+    const payload = {
+      ...formData,
+      _formStartTime: formStartTime.current,
+    };
+
     try {
       let response = await fetch("/api/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       // Si la ruta devuelve 404 (típico en servidores Apache estáticos con PHP), intentar endpoint php
@@ -36,7 +43,7 @@ export default function Contact() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         });
       }
 
@@ -48,7 +55,8 @@ export default function Contact() {
 
       setStatus("success");
       setStatusMessage(data.message || "¡Gracias por contactarnos! Te responderemos muy pronto.");
-      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "", empresa_website: "" });
+      formStartTime.current = Date.now();
     } catch (err: any) {
       console.error("Error al enviar el formulario:", err);
       setStatus("error");
@@ -200,6 +208,33 @@ export default function Contact() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Campo trampa Honeypot (invisible para humanos, bots lo rellenan automáticamente) */}
+                <div
+                  style={{
+                    opacity: 0,
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    height: 0,
+                    width: 0,
+                    zIndex: -1,
+                    overflow: "hidden",
+                    pointerEvents: "none",
+                  }}
+                  aria-hidden="true"
+                >
+                  <label htmlFor="empresa_website">Sitio Web Empresa</label>
+                  <input
+                    type="text"
+                    id="empresa_website"
+                    name="empresa_website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formData.empresa_website}
+                    onChange={handleChange}
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -210,6 +245,7 @@ export default function Contact() {
                       id="name"
                       name="name"
                       required
+                      maxLength={100}
                       disabled={isSubmitting}
                       value={formData.name}
                       onChange={handleChange}
@@ -227,6 +263,7 @@ export default function Contact() {
                       id="email"
                       name="email"
                       required
+                      maxLength={150}
                       disabled={isSubmitting}
                       value={formData.email}
                       onChange={handleChange}
@@ -245,6 +282,7 @@ export default function Contact() {
                       type="tel"
                       id="phone"
                       name="phone"
+                      maxLength={30}
                       disabled={isSubmitting}
                       value={formData.phone}
                       onChange={handleChange}
@@ -284,6 +322,7 @@ export default function Contact() {
                     id="message"
                     name="message"
                     required
+                    maxLength={3000}
                     disabled={isSubmitting}
                     value={formData.message}
                     onChange={handleChange}
