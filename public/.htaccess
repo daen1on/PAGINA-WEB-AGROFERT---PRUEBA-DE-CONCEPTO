@@ -88,20 +88,30 @@ Options -Indexes
 </IfModule>
 
 # ------------------------------------------------------------------------------
-# 5. ENRUTAMIENTO SPA (Single Page Application - React Router)
+# 5. ENRUTAMIENTO HÍBRIDO: REACT SPA + WORDPRESS HEADLESS
 # ------------------------------------------------------------------------------
 <IfModule mod_rewrite.c>
+    # Prioridad: Cargar React (index.html) al entrar a la raíz, pero conservar index.php para el backend
+    DirectoryIndex index.html index.php
+
     RewriteEngine On
     RewriteBase /
 
-    # Si la petición es para el script de correo PHP, no reescribir
+    # 1. API de correo del formulario de contacto
     RewriteRule ^api/send-email\.php$ - [L]
 
-    # Si el archivo o directorio solicitado existe físicamente, servirlo directamente
+    # 2. WordPress Headless: Enrutar llamadas a la API REST directamente a WordPress
+    RewriteRule ^wp-json/(.*)?$ index.php [QSA,L]
+
+    # 3. WordPress Admin y Login: Permitir acceso continuo al panel de administración
+    RewriteRule ^wp-admin/?$ wp-admin/index.php [L]
+    RewriteRule ^wp-login\.php$ - [L]
+
+    # 4. Servir archivos y carpetas existentes (uploads de WordPress, assets de React)
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # En cualquier otra ruta (ej: /nosotros, /contacto, /cultivos), enviar a index.html
+    # 5. Cualquier otra ruta pública es gestionada por el frontend React (SPA)
     RewriteRule ^ index.html [L]
 </IfModule>
