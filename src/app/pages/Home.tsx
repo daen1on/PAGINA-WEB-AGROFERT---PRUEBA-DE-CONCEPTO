@@ -33,22 +33,22 @@ export default function Home() {
   const [productoSeleccionado, setProductoSeleccionado] =
     useState<EstrellaProduct | null>(null);
 
-    const productosOrdenados = [...productos].sort((a, b) => {
-      const aNuevo =
-        a.tags?.some(
-          (tag) => tag.name.toLowerCase().trim() === "nuevo"
-        ) ?? false;
+  const productosOrdenados = [...productos].sort((a, b) => {
+    const aNuevo =
+      a.tags?.some(
+        (tag) => tag.name.toLowerCase().trim() === "nuevo"
+      ) ?? false;
 
-      const bNuevo =
-        b.tags?.some(
-          (tag) => tag.name.toLowerCase().trim() === "nuevo"
-        ) ?? false;
+    const bNuevo =
+      b.tags?.some(
+        (tag) => tag.name.toLowerCase().trim() === "nuevo"
+      ) ?? false;
 
-      if (aNuevo && !bNuevo) return -1;
-      if (!aNuevo && bNuevo) return 1;
+    if (aNuevo && !bNuevo) return -1;
+    if (!aNuevo && bNuevo) return 1;
 
-      return 0;
-    });
+    return 0;
+  });
 
   const carruselRef = useRef<HTMLDivElement>(null);
 
@@ -70,9 +70,8 @@ export default function Home() {
       return (
         <div className="space-y-2">
           <div
-            className={`inline-block bg-green-100 text-green-800 font-semibold rounded-md px-2.5 py-1 text-xs uppercase tracking-wide border border-green-200 ${
-              esModal ? "mb-1" : ""
-            }`}
+            className={`inline-block bg-green-100 text-green-800 font-semibold rounded-md px-2.5 py-1 text-xs uppercase tracking-wide border border-green-200 ${esModal ? "mb-1" : ""
+              }`}
           >
             {textoIca}
           </div>
@@ -194,7 +193,7 @@ export default function Home() {
             </h2>
 
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Más de 20 años de experiencia brindando soluciones nutricionales
+              Más de 15 años de experiencia brindando soluciones nutricionales
               para el campo
             </p>
           </div>
@@ -324,27 +323,27 @@ export default function Home() {
                           (tag) =>
                             tag.name.toLowerCase().trim() === "nuevo"
                         ) && (
-                          <span
-                            className="inline-flex items-center justify-center bg-green-600 text-white text-[11px] font-extrabold uppercase tracking-wider shadow-lg"
-                            style={{
-                              width: "68px",
-                              height: "68px",
-                              clipPath:
-                                "polygon(50% 0%, 58% 8%, 67% 3%, 73% 12%, 83% 9%, 87% 20%, 97% 23%, 94% 34%, 100% 42%, 92% 50%, 100% 58%, 94% 66%, 97% 77%, 87% 80%, 83% 91%, 73% 88%, 67% 97%, 58% 92%, 50% 100%, 42% 92%, 33% 97%, 27% 88%, 17% 91%, 13% 80%, 3% 77%, 6% 66%, 0% 58%, 8% 50%, 0% 42%, 6% 34%, 3% 23%, 13% 20%, 17% 9%, 27% 12%, 33% 3%, 42% 8%)",
-                            }}
-                          >
-                            Nuevo
-                          </span>
-                        )}
+                            <span
+                              className="inline-flex items-center justify-center bg-green-600 text-white text-[11px] font-extrabold uppercase tracking-wider shadow-lg"
+                              style={{
+                                width: "68px",
+                                height: "68px",
+                                clipPath:
+                                  "polygon(50% 0%, 58% 8%, 67% 3%, 73% 12%, 83% 9%, 87% 20%, 97% 23%, 94% 34%, 100% 42%, 92% 50%, 100% 58%, 94% 66%, 97% 77%, 87% 80%, 83% 91%, 73% 88%, 67% 97%, 58% 92%, 50% 100%, 42% 92%, 33% 97%, 27% 88%, 17% 91%, 13% 80%, 3% 77%, 6% 66%, 0% 58%, 8% 50%, 0% 42%, 6% 34%, 3% 23%, 13% 20%, 17% 9%, 27% 12%, 33% 3%, 42% 8%)",
+                              }}
+                            >
+                              Nuevo
+                            </span>
+                          )}
 
                         {/* Producto destacado */}
                         {!producto.tags?.some(
                           (tag) => tag.name.toLowerCase().trim() === "nuevo"
                         ) && (
-                          <span className="bg-white/90 text-green-700 text-xs font-bold px-3 py-1 rounded-full shadow-sm backdrop-blur-sm uppercase tracking-wide">
-                            Destacado
-                          </span>
-                        )}
+                            <span className="bg-white/90 text-green-700 text-xs font-bold px-3 py-1 rounded-full shadow-sm backdrop-blur-sm uppercase tracking-wide">
+                              Destacado
+                            </span>
+                          )}
                       </div>
                     </div>
 

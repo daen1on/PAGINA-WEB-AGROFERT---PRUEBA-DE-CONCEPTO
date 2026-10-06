@@ -22,7 +22,7 @@ export default function AboutUs() {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Nuestra Historia</h2>
               <p className="text-gray-600 mb-4">
-                Desde hace más de 20 años, AGROFERT se ha dedicado a desarrollar y distribuir
+                Desde hace más de 15 años, AGROFERT se ha dedicado a desarrollar y distribuir
                 fertilizantes de alta calidad para el sector agrícola. Comenzamos como una pequeña
                 empresa familiar con la visión de ayudar a los productores a maximizar sus rendimientos
                 de manera sostenible.
