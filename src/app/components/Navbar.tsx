@@ -3,6 +3,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import logo from '../../assets/logo-agrofert.svg';
 import { cropDetailsData } from "../../data/crops";
+import { preloadProducts } from "../services/productsService";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,26 +39,13 @@ export function Navbar() {
   const prefetchRouteData = (path: string) => {
     if (location.pathname === path) return;
 
-    const customerKey = import.meta.env.VITE_WOOCOMMERCE_CUSTOMER_KEY || '';
-    const customerSecret = import.meta.env.VITE_WOOCOMMERCE_CUSTOMER_SECRET || '';
-    const isDev = import.meta.env.DEV || import.meta.env.VITE_ENV === 'development';
-    const baseUrl = isDev ? '' : 'https://www.agrofert.com.co';
-
     try {
-      if (path === "/productos") {
-        // Precargamos el catálogo completo. Mismos parámetros que useProducts.ts
-        fetch(`${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&per_page=100&_fields=id,name,description,short_description,images,categories,attributes`, {
-          cache: "force-cache" // Le decimos al navegador que guarde esta respuesta en memoria
-        });
-      } else if (path === "/") {
-        // Precargamos los productos destacados del Home. Mismos parámetros que useFeaturedProducts.ts
-        fetch(`${baseUrl}/wp-json/wc/v3/products?consumer_key=${customerKey}&consumer_secret=${customerSecret}&include=23376,23351,23394,23377,23332,23406,23419&_fields=id,name,description,short_description,images,attributes`, {
-          cache: "force-cache"
-        });
+      if (path === "/productos" || path === "/") {
+        // Precarga unificada del catálogo sin exponer credenciales
+        preloadProducts();
       }
     } catch (error) {
-      // Es una carga silenciosa. Si falla por red, no hacemos nada para no alertar al usuario.
-      // La vista real manejará el error de todos modos cuando el usuario haga clic.
+      // Carga silenciosa
     }
   };
 

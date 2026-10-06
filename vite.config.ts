@@ -81,6 +81,11 @@ export default defineConfig(({ mode }) => {
     },
 
     server: {
+      headers: {
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+      },
       proxy: {
         '/wp-json': {
           target: 'https://www.agrofert.com.co',
@@ -88,6 +93,14 @@ export default defineConfig(({ mode }) => {
           secure: false,
         }
       }
+    },
+
+    preview: {
+      headers: {
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+      },
     },
 
     // File types to support raw imports. Never add .css, .tsx, or .ts files to this.

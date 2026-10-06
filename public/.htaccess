@@ -1,0 +1,107 @@
+# ==============================================================================
+# AGROFERT - CONFIGURACIÓN DE SEGURIDAD Y ENRUTAMIENTO (.htaccess)
+# Compatible con Apache / LiteSpeed / cPanel
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. CABECERAS DE SEGURIDAD HTTP (mod_headers)
+# ------------------------------------------------------------------------------
+<IfModule mod_headers.c>
+    # Protección contra Clickjacking: impide que la web sea incrustada en iframes externos
+    Header set X-Frame-Options "SAMEORIGIN"
+
+    # Prevención de ataques MIME-sniffing: obliga al navegador a respetar el Content-Type declarado
+    Header set X-Content-Type-Options "nosniff"
+
+    # Política de Referente: no filtra datos sensibles de URL al navegar hacia sitios externos
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Restricción de permisos de hardware del navegador (Cámara, Micrófono, Geolocalización)
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+
+    # Protección XSS heredada para navegadores antiguos
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Forzar HTTPS con HSTS (1 año) cuando la conexión sea segura
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" env=HTTPS
+
+    # Content Security Policy (CSP): controla los orígenes permitidos para scripts, imágenes y conexiones
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.agrofert.com.co https://*.tile.openstreetmap.org https:; frame-ancestors 'self';"
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 2. BLOQUEO DE ARCHIVOS SENSIBLES Y OCULTOS
+# ------------------------------------------------------------------------------
+# Proteger archivos .env, .git, .json de configuración y código fuente
+<FilesMatch "(^\.|\.(env.*|config\.js|config\.ts|json|lock|md|log|yml|yaml|bak|sql))$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Proteger el propio .htaccess
+<Files ".htaccess">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</Files>
+
+# Desactivar el listado de directorios
+Options -Indexes
+
+# ------------------------------------------------------------------------------
+# 3. COMPRESIÓN GZIP (mod_deflate para mejorar velocidad)
+# ------------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json application/xml
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 4. POLÍTICA DE CACHÉ DE NAVEGADOR (mod_expires)
+# ------------------------------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Archivos estáticos con hash (Vite genera nombres únicos en dist/assets)
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+
+    # index.html no debe cachearse permanentemente para que el usuario siempre vea nuevas versiones
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# ------------------------------------------------------------------------------
+# 5. ENRUTAMIENTO SPA (Single Page Application - React Router)
+# ------------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Si la petición es para el script de correo PHP, no reescribir
+    RewriteRule ^api/send-email\.php$ - [L]
+
+    # Si el archivo o directorio solicitado existe físicamente, servirlo directamente
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # En cualquier otra ruta (ej: /nosotros, /contacto, /cultivos), enviar a index.html
+    RewriteRule ^ index.html [L]
+</IfModule>
