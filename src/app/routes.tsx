@@ -8,7 +8,8 @@ import CropDetail from "./pages/CropDetail";
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import Services from "./pages/Services";
-import Distribuidores from "./pages/Distribuidores"
+import Distribuidores from "./pages/Distribuidores";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +25,8 @@ export const router = createBrowserRouter([
       { path: "distribuidores", Component: Distribuidores },
       { path: "contacto", Component: Contact },
       { path: "servicios", Component: Services },
+      { path: "politica-privacidad", Component: PrivacyPolicy },
+      { path: "tratamiento-de-datos", Component: PrivacyPolicy },
     ],
   },
 ]);

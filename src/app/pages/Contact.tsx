@@ -1,5 +1,6 @@
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { useState, useRef } from "react";
+import { Link } from "react-router";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -12,12 +13,20 @@ export default function Contact() {
   });
 
   const formStartTime = useRef(Date.now());
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!acceptedPrivacy) {
+      setStatus("error");
+      setStatusMessage("Debes aceptar la Política de Tratamiento de Datos Personales para poder enviar tu mensaje.");
+      return;
+    }
+
     setIsSubmitting(true);
     setStatus("idle");
     setStatusMessage("");
@@ -56,6 +65,7 @@ export default function Contact() {
       setStatus("success");
       setStatusMessage(data.message || "¡Gracias por contactarnos! Te responderemos muy pronto.");
       setFormData({ name: "", email: "", phone: "", subject: "", message: "", empresa_website: "" });
+      setAcceptedPrivacy(false);
       formStartTime.current = Date.now();
     } catch (err: any) {
       console.error("Error al enviar el formulario:", err);
@@ -119,14 +129,6 @@ export default function Contact() {
                       info@agrofert.com.co
                     </a>
                   </p>
-                  <p>
-                    <a
-                      href="mailto:ventas@agrofert.com.co"
-                      className="text-gray-600 hover:text-green-700 transition-colors"
-                    >
-                      ventas@agrofert.com.co
-                    </a>
-                  </p>
                 </div>
               </div>
             </div>
@@ -139,7 +141,7 @@ export default function Contact() {
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">Dirección</h3>
                   <p className="text-gray-600">
-                    Finca el MANZANO
+                    Tuta – Boyacá
                     <br />
                     Colombia
                   </p>
@@ -330,6 +332,32 @@ export default function Contact() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                     placeholder="Escribe tu mensaje aquí..."
                   ></textarea>
+                </div>
+
+                {/* Aceptación obligatoria de Política de Tratamiento de Datos (Ley 1581 de 2012) */}
+                <div className="flex items-start gap-3 p-3.5 bg-gray-50 border border-gray-200 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="acceptedPrivacy"
+                    name="acceptedPrivacy"
+                    required
+                    disabled={isSubmitting}
+                    checked={acceptedPrivacy}
+                    onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                    className="mt-1 w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer disabled:cursor-not-allowed"
+                  />
+                  <label htmlFor="acceptedPrivacy" className="text-xs sm:text-sm text-gray-700 leading-snug cursor-pointer select-none">
+                    He leído y acepto la{" "}
+                    <Link
+                      to="/politica-privacidad"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-700 underline font-semibold hover:text-green-800"
+                    >
+                      Política de Tratamiento de Datos Personales
+                    </Link>{" "}
+                    y autorizo a AGROFERT a contactarme para gestionar mi solicitud. *
+                  </label>
                 </div>
 
                 <button

@@ -14,6 +14,7 @@ export function Footer() {
     { path: "/nosotros", label: "Nosotros" },
     { path: "/servicios", label: "Servicios" },
     { path: "/contacto", label: "Contacto" },
+    { path: "/politica-privacidad", label: "Tratamiento de Datos" },
   ];
 
   return (
@@ -110,9 +111,17 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Copyright - Reducimos margen superior */}
-        <div className="border-t border-gray-800 mt-8 pt-6 text-xs text-center tracking-widest text-gray-500 uppercase">
-          <p>&copy; 2026 AGROFERT. Todos los derechos reservados.</p>
+        {/* Copyright y Enlaces Legales */}
+        <div className="border-t border-gray-800 mt-8 pt-6 text-xs text-center text-gray-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="tracking-widest uppercase">&copy; 2026 AGROFERT. Todos los derechos reservados.</p>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/politica-privacidad"
+              className="text-gray-400 hover:text-green-500 transition-colors underline-offset-4 hover:underline"
+            >
+              Política de Tratamiento de Datos Personales
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
